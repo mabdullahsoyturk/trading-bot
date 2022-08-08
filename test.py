@@ -18,8 +18,8 @@ exchange = ccxt.binance(
     }
 )
 
-num_candles = 24 * 365
-timeframe = "30m"
+num_candles = 12 * 24 * 2
+timeframe = "5m"
 interval = exchange.parse_timeframe(timeframe) * 1000
 
 # Structure: [timestamp,     open,     high,     low,      close,    volume]

@@ -93,7 +93,7 @@ def macd_strategy_long(ohlcvs, ohlcv_data):
 
                     if candle.close_price >= take_profit:
                         print(f'Take profit. Closed at: {candle.close_price}\n')
-                        r += 2
+                        r += 1.5
                         in_trade = False
                         break 
 
@@ -133,7 +133,7 @@ def macd_strategy_short(ohlcvs, ohlcv_data):
 
                     if candle.close_price <= take_profit:
                         print(f'Take profit. Closed at: {candle.close_price}\n')
-                        r += 2
+                        r += 1.5
                         in_trade = False
                         break 
 
