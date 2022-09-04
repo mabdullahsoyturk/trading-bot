@@ -36,7 +36,7 @@ def two_to_one_engulf_long(ohlcvs, ohlcv_data):
             whichever_is_lowest = second_candle.lowest if second_candle.highest < engulf_candle.highest else engulf_candle.lowest
             stop_loss = whichever_is_lowest
             take_profit = position_price + (position_price - stop_loss) * rr
-            print(f'\n[{open_time}] Opened at: {position_price}, Stop Loss: {stop_loss}, Take Profit: {take_profit}')
+            print(f'\n[LONG][{open_time}] Opened at: {position_price}, Stop Loss: {stop_loss}, Take Profit: {take_profit}, EMA: {ema[index]} ATR: {atr[index]}')
 
             for runner_index in range(index + 1, len(ohlcvs)):
                 candle = ohlcvs[runner_index]
@@ -88,7 +88,7 @@ def two_to_one_engulf_short(ohlcvs, ohlcv_data):
             whichever_is_highest = second_candle.highest if second_candle.highest > engulf_candle.highest else engulf_candle.highest
             stop_loss = whichever_is_highest
             take_profit = position_price - (stop_loss - position_price) * rr
-            print(f'\n[{open_time}] Opened at: {position_price}, Stop Loss: {stop_loss}, Take Profit: {take_profit}')
+            print(f'\n[SHORT][{open_time}] Opened at: {position_price}, Stop Loss: {stop_loss}, Take Profit: {take_profit}, EMA: {ema[index]} ATR: {atr[index]}')
 
             for runner_index in range(index + 1, len(ohlcvs)):
                 candle = ohlcvs[runner_index]
