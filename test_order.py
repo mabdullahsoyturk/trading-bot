@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 
 import ccxt
 
@@ -49,6 +50,9 @@ if __name__ == '__main__':
             if balance['USDT']['free'] < 81:
                 print(f'Balance ({balance}) is smaller than 80 dollars')
                 exit()
+            orders = exchange.fetchOrders(symbol, since, None, {})
+            print(orders)
+            exit()
 
             amount = get_amount(budget, position.side, position.entry_price, position.stop_loss, position.take_profit)
 
@@ -58,7 +62,7 @@ if __name__ == '__main__':
             
             # Limit Order
             order = Order(symbol, "limit", position.side, amount, position.entry_price, params)
-            create_order(exchange, order)
+            open_order = create_order(exchange, order)
 
              # Stop Loss
             stopLossParams = {
@@ -66,14 +70,19 @@ if __name__ == '__main__':
             }
             inverted_side = 'sell' if position.side == 'buy' else 'buy'
             stop_loss_order = Order(symbol, "STOP_MARKET", inverted_side, amount, None, stopLossParams)
-            create_order(exchange, stop_loss_order)
+            stop_order = create_order(exchange, stop_loss_order)
 
             # Take Profit
             takeProfitParams = {
                 'stopPrice': exchange.price_to_precision(symbol, position.take_profit)
             }
             take_profit_order = Order(symbol, "TAKE_PROFIT_MARKET", inverted_side, amount, None, takeProfitParams)
-            create_order(exchange, take_profit_order)
+            profit_order = create_order(exchange, take_profit_order)
+
+            with open('orders.txt', 'a') as order_file:
+                json.dump(open_order, order_file)
+                json.dump(stop_order, order_file)
+                json.dump(profit_order, order_file)
         else:
             print(f'Did not have any opportunity to open a position')
     except Exception as e:

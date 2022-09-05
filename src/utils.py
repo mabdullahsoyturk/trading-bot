@@ -18,8 +18,11 @@ def create_order(exchange, order):
         print(f'Trying to execute: {order}')
         opened_order = exchange.create_order(order.symbol, order.type, order.side, order.amount, order.price, order.params)
         print(opened_order)
+
+        return opened_order
     except Exception as e:
         print(e)
+        return None
 
 def get_x_days_ago_in_iso(x=2):
     today = datetime.datetime.now()

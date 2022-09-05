@@ -3,7 +3,8 @@ import talib
 import datetime
 
 timeperiod = 50
-rr = 1.5
+rr = 2
+atr_multiplier = 2
 
 def two_to_one_engulf_long(ohlcvs, ohlcv_data):
     r = 0
@@ -26,7 +27,7 @@ def two_to_one_engulf_long(ohlcvs, ohlcv_data):
         if first_candle.close_price < first_candle.open_price and \
                 second_candle.close_price < second_candle.open_price and \
                 engulf_candle.close_price > second_candle.open_price and \
-                engulf_candle.highest - engulf_candle.lowest < atr[index] * 2 and \
+                engulf_candle.highest - engulf_candle.lowest < atr[index] * atr_multiplier and \
                 ema[index] < engulf_candle.close_price:
             num_positions += 1
 
@@ -79,7 +80,7 @@ def two_to_one_engulf_short(ohlcvs, ohlcv_data):
         if first_candle.close_price > first_candle.open_price and \
                 second_candle.close_price > second_candle.open_price and \
                 engulf_candle.close_price < second_candle.open_price and \
-                engulf_candle.highest - engulf_candle.lowest < atr[index] * 2 and \
+                engulf_candle.highest - engulf_candle.lowest < atr[index] * atr_multiplier and \
                 ema[index] > engulf_candle.close_price:
             num_positions += 1
             open_time = datetime.datetime.fromtimestamp(engulf_candle.timestamp/1000.0)
@@ -111,27 +112,21 @@ def two_to_one_engulf_short(ohlcvs, ohlcv_data):
 
 def macd_strategy_long(ohlcvs, ohlcv_data):
     r_history = []
-    ohlcvs_np = np.array([element[3] for element in ohlcv_data])
+    ohlcvs_np = np.array([element[4] for element in ohlcv_data])
     ema = talib.EMA(ohlcvs_np, timeperiod=timeperiod)
     macd, macd_signal, _ = talib.MACD(ohlcvs_np)
 
-    in_trade = False
-
     for index in range(2, len(ohlcvs)):
-
         if macd[index] < 0 and \
-                not in_trade and \
                 macd[index] > macd_signal[index] and \
                 ohlcvs[index].close_price > ema[index]:
 
             position_price = ohlcvs[index].close_price
-            take_profit = position_price + (position_price - ema[index]) * 1.5
+            take_profit = position_price + (position_price - ema[index]) * rr
             stop_loss = ema[index]
 
             print(
                 f'\nOpened at: {position_price}, Stop Loss: {stop_loss}, Take Profit: {take_profit}')
-
-            in_trade = True
 
             for runner_index in range(index + 1, len(ohlcvs)):
                 candle = ohlcvs[runner_index]
@@ -139,13 +134,11 @@ def macd_strategy_long(ohlcvs, ohlcv_data):
                 if candle.close_price >= take_profit:
                     print(f'Take profit. Closed at: {candle.close_price}\n')
                     r_history.append(1.5)
-                    in_trade = False
                     break
 
                 if candle.close_price < stop_loss:
                     print(f'Stop loss. Closed at: {candle.close_price}\n')
                     r_history.append(-1)
-                    in_trade = False
                     break
 
     print(np.cumsum(np.array(r_history)))
@@ -154,21 +147,18 @@ def macd_strategy_long(ohlcvs, ohlcv_data):
 
 def macd_strategy_short(ohlcvs, ohlcv_data):
     r_history = []
-    ohlcvs_np = np.array([element[3] for element in ohlcv_data])
+    ohlcvs_np = np.array([element[4] for element in ohlcv_data])
     ema = talib.EMA(ohlcvs_np, timeperiod=timeperiod)
     macd, macd_signal, _ = talib.MACD(ohlcvs_np)
-
-    in_trade = False
 
     for index in range(2, len(ohlcvs)):
 
         if macd[index] > 0 and \
-                not in_trade and \
                 macd[index] < macd_signal[index] and \
                 ohlcvs[index].close_price < ema[index]:
 
             position_price = ohlcvs[index].close_price
-            take_profit = position_price - (ema[index] - position_price) * 1.5
+            take_profit = position_price - (ema[index] - position_price) * rr
             stop_loss = ema[index]
 
             print(
@@ -182,13 +172,11 @@ def macd_strategy_short(ohlcvs, ohlcv_data):
                 if candle.close_price <= take_profit:
                     print(f'Take profit. Closed at: {candle.close_price}\n')
                     r_history.append(1.5)
-                    in_trade = False
                     break
 
                 if candle.close_price > stop_loss:
                     print(f'Stop loss. Closed at: {candle.close_price}\n')
                     r_history.append(-1)
-                    in_trade = False
                     break
 
     print(np.cumsum(np.array(r_history)))
