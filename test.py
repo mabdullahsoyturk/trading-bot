@@ -18,7 +18,7 @@ exchange = ccxt.binance(
     }
 )
 
-from_datetime = '2022-07-30 00:00:00'
+from_datetime = '2022-09-01 00:00:00'
 since = exchange.parse8601(from_datetime)
 
 # Structure: [timestamp,     open,     high,     low,      close,    volume]
@@ -30,6 +30,7 @@ while True:
     try:
         print(exchange.milliseconds(), 'Fetching candles')
         ohlcv_data = exchange.fetch_ohlcv('BTC/USDT', '30m', since=since)
+        print(ohlcv_data)
         print(exchange.milliseconds(), 'Fetched', len(ohlcv_data), 'candles')
 
         print(len(ohlcv_data))

@@ -3,8 +3,8 @@ import talib
 import datetime
 
 timeperiod = 50
-rr = 2
-atr_multiplier = 2
+rr = 1.5
+atr_multiplier = 1.5
 
 def two_to_one_engulf_long(ohlcvs, ohlcv_data):
     r = 0
