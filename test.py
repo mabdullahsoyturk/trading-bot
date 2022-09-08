@@ -4,7 +4,7 @@ import time
 from ohlcv import OHLCV
 import ccxt
 from ccxt.base.decimal_to_precision import ROUND_UP
-from strategy import two_to_one_engulf_long, two_to_one_engulf_short, macd_strategy_long, macd_strategy_short
+from strategy import *
 
 msec = 1000
 minute = 60 * msec
@@ -18,7 +18,7 @@ exchange = ccxt.binance(
     }
 )
 
-from_datetime = '2022-09-01 00:00:00'
+from_datetime = '2022-06-01 00:00:00'
 since = exchange.parse8601(from_datetime)
 
 # Structure: [timestamp,     open,     high,     low,      close,    volume]
@@ -30,10 +30,7 @@ while True:
     try:
         print(exchange.milliseconds(), 'Fetching candles')
         ohlcv_data = exchange.fetch_ohlcv('BTC/USDT', '30m', since=since)
-        print(ohlcv_data)
         print(exchange.milliseconds(), 'Fetched', len(ohlcv_data), 'candles')
-
-        print(len(ohlcv_data))
 
         ohlcvs = [OHLCV(*data) for data in ohlcv_data]
 
@@ -50,10 +47,10 @@ while True:
     except (ccxt.ExchangeError, ccxt.AuthenticationError, ccxt.ExchangeNotAvailable, ccxt.RequestTimeout) as error:
         print('Got an error')
 
-# macd_strategy_long(all_ohlcvs, all_ohlcvs_data)
-# macd_strategy_short(all_ohlcvs, all_ohlcvs_data)
-short_r, short_num_stops, short_num_profits, short_num_positions = two_to_one_engulf_short(all_ohlcvs, all_ohlcvs_data)
-long_r, long_num_stops, long_num_profits, long_num_positions = two_to_one_engulf_long(all_ohlcvs, all_ohlcvs_data)
+# short_r, short_num_stops, short_num_profits, short_num_positions = two_to_one_engulf_short(all_ohlcvs, all_ohlcvs_data)
+# long_r, long_num_stops, long_num_profits, long_num_positions = two_to_one_engulf_long(all_ohlcvs, all_ohlcvs_data)
+short_r, short_num_stops, short_num_profits, short_num_positions = macd_engulf_short(all_ohlcvs, all_ohlcvs_data)
+long_r, long_num_stops, long_num_profits, long_num_positions = macd_engulf_long(all_ohlcvs, all_ohlcvs_data)
 
 print(f'\nShort r: {short_r}, Long r: {long_r}, Total r: {long_r + short_r}\n')
 
