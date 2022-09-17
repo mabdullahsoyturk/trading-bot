@@ -4,12 +4,20 @@ import datetime
 def get_balance(exchange):
     return exchange.fetch_balance()
 
-def get_amount(budget, side, price, stop_loss, take_profit, risk=2.5):
-    amount = (budget / price)
+def get_amount(budget, side, price, stop_loss, risk=2):
+    amount = 0
     
-    loss_in_dollars = (price - stop_loss) * amount
+    if side == 'buy':
+        amount = risk / (price - stop_loss)
+    elif side == 'sell':
+        amount = risk / (stop_loss - price)
+    else:
+        print("Unknown side. Should be buy or sell")
 
-    assert loss_in_dollars <= risk
+    print(amount)
+
+    assert amount > 0.001
+    assert amount * price < budget
 
     return amount
 
@@ -30,5 +38,6 @@ def get_x_days_ago_in_iso(x=2):
     return (today - delta).isoformat()
 
 if __name__ == '__main__':
-    print(get_amount(80, 'long', 20000, 19500, 20750))
+    print(get_amount(80, 'buy', 20000, 19500))
+    print(get_amount(80, 'sell', 19500, 20000))
     print(get_x_days_ago_in_iso(2))

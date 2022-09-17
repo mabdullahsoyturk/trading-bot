@@ -29,11 +29,8 @@ all_ohlcvs = []
 all_ohlcvs_data = []
 while True:
     try:
-        print(exchange.milliseconds(), 'Fetching candles')
         ohlcv_data = exchange.fetch_ohlcv('BTC/USDT', '30m', since=since)
         print(exchange.milliseconds(), 'Fetched', len(ohlcv_data), 'candles')
-
-        ohlcv_data = ohlcv_data
 
         ohlcvs = [OHLCV(*data) for data in ohlcv_data]
 
