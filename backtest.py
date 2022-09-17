@@ -19,7 +19,7 @@ exchange = ccxt.binance(
     }
 )
 
-from_datetime = '2022-01-01 00:00:00'
+from_datetime = '2022-09-01 00:00:00'
 since = exchange.parse8601(from_datetime)
 
 # Structure: [timestamp,     open,     high,     low,      close,    volume]

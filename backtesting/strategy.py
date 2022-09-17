@@ -4,8 +4,8 @@ import datetime
 from .summary import Summary
 
 timeperiod = 200
-rr = 1.5
-atr_multiplier = 1.5
+rr = 2
+atr_multiplier = 2
 
 def two_to_one_engulf_long(ohlcvs, ohlcv_data):
     summary = Summary(side="[LONG]")

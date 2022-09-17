@@ -4,8 +4,8 @@ import datetime
 from src.position import Position
 
 timeperiod = 200
-rr = 1.5
-atr_multiplier = 1.5
+rr = 2
+atr_multiplier = 2
 
 class EngulfingStrategy():
     def __init__(self, ohlcvs, ohlcv_data):
