@@ -3,7 +3,7 @@ import talib
 import datetime
 from src.position import Position
 
-timeperiod = 50
+timeperiod = 200
 rr = 1.5
 atr_multiplier = 1.5
 
@@ -22,6 +22,9 @@ class EngulfingStrategy():
         if short_position:
             return short_position
 
+    def get_last_three_candles(self):
+        return self.ohlcvs[0], self.ohlcvs[1], self.ohlcvs[2]
+
     def two_to_one_engulf_long(self):
         r = 0
 
@@ -35,9 +38,7 @@ class EngulfingStrategy():
         ema = talib.EMA(closes, timeperiod=timeperiod)
         atr = talib.ATR(highs, lows, closes)
 
-        first_candle = self.ohlcvs[0]
-        second_candle = self.ohlcvs[1]
-        engulf_candle = self.ohlcvs[2]
+        first_candle, second_candle, engulf_candle = self.get_last_three_candles()
         open_time = datetime.datetime.fromtimestamp(engulf_candle.timestamp/1000.0)
 
         print(f'[LONG, {open_time}] First Candle Check: {first_candle.close_price < first_candle.open_price}')

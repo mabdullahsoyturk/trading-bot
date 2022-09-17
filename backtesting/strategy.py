@@ -1,21 +1,18 @@
 import numpy as np
 import talib
 import datetime
+from .summary import Summary
 
-timeperiod = 50
+timeperiod = 200
 rr = 1.5
 atr_multiplier = 1.5
 
 def two_to_one_engulf_long(ohlcvs, ohlcv_data):
-    r = 0
+    summary = Summary(side="[LONG]")
 
-    num_stops = 0
-    num_take_profits = 0
-    num_positions = 0
-
-    highs = np.array([element[2] for element in ohlcv_data])
-    lows = np.array([element[3] for element in ohlcv_data])
-    closes = np.array([element[4] for element in ohlcv_data])
+    highs = ohlcv_data[:, 2]
+    lows = ohlcv_data[:, 3]
+    closes = ohlcv_data[:, 4]
     ema = talib.EMA(closes, timeperiod=timeperiod)
     atr = talib.ATR(highs, lows, closes)
 
@@ -29,15 +26,13 @@ def two_to_one_engulf_long(ohlcvs, ohlcv_data):
                 engulf_candle.close_price > second_candle.open_price and \
                 engulf_candle.highest - engulf_candle.lowest < atr[index] * atr_multiplier and \
                 ema[index] < engulf_candle.close_price:
-            num_positions += 1
-
             open_time = datetime.datetime.fromtimestamp(engulf_candle.timestamp/1000.0)
 
             position_price = engulf_candle.close_price
             whichever_is_lowest = second_candle.lowest if second_candle.highest < engulf_candle.highest else engulf_candle.lowest
             stop_loss = whichever_is_lowest
             take_profit = position_price + (position_price - stop_loss) * rr
-            print(f'\n[LONG][{open_time}] Opened at: {position_price}, Stop Loss: {stop_loss}, Take Profit: {take_profit}, EMA: {ema[index]} ATR: {atr[index]}')
+            print(f'\n[LONG][{open_time}] Opened at: {position_price}, Stop Loss: {stop_loss}, Take Profit: {take_profit:.2f}, EMA: {ema[index]:.2f} ATR: {atr[index]:.2f}')
 
             for runner_index in range(index + 1, len(ohlcvs)):
                 candle = ohlcvs[runner_index]
@@ -45,29 +40,23 @@ def two_to_one_engulf_long(ohlcvs, ohlcv_data):
                 if candle.highest >= take_profit:
                     close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
                     print(f'[{close_time}] Take profit')
-                    r += rr
-                    num_take_profits += 1
+                    summary.r_history.append(rr)
                     break
 
                 if candle.lowest <= stop_loss:
                     close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
                     print(f'[{close_time}] Stop loss')
-                    r -= 1
-                    num_stops += 1
+                    summary.r_history.append(-1)
                     break
 
-    return r, num_stops, num_take_profits, num_positions
-
+    return summary
 
 def two_to_one_engulf_short(ohlcvs, ohlcv_data):
-    r = 0
-    num_stops = 0
-    num_take_profits = 0
-    num_positions = 0
+    summary = Summary(side="[SHORT]")
 
-    highs = np.array([element[2] for element in ohlcv_data])
-    lows = np.array([element[3] for element in ohlcv_data])
-    closes = np.array([element[4] for element in ohlcv_data])
+    highs = ohlcv_data[:, 2]
+    lows = ohlcv_data[:, 3]
+    closes = ohlcv_data[:, 4]
 
     ema = talib.EMA(closes, timeperiod=timeperiod)
     atr = talib.ATR(highs, lows, closes)
@@ -82,7 +71,6 @@ def two_to_one_engulf_short(ohlcvs, ohlcv_data):
                 engulf_candle.close_price < second_candle.open_price and \
                 engulf_candle.highest - engulf_candle.lowest < atr[index] * atr_multiplier and \
                 ema[index] > engulf_candle.close_price:
-            num_positions += 1
             open_time = datetime.datetime.fromtimestamp(engulf_candle.timestamp/1000.0)
 
             position_price = engulf_candle.close_price
@@ -97,18 +85,16 @@ def two_to_one_engulf_short(ohlcvs, ohlcv_data):
                 if candle.lowest <= take_profit:
                     close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
                     print(f'[{close_time}] Take profit')
-                    r += rr
-                    num_take_profits += 1
+                    summary.r_history.append(rr)
                     break
 
                 if candle.highest >= stop_loss:
                     close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
                     print(f'[{close_time}] Stop loss')
-                    r -= 1
-                    num_stops += 1
+                    summary.r_history.append(-1)
                     break
 
-    return r, num_stops, num_take_profits, num_positions
+    return summary
 
 def macd_engulf_long(ohlcvs, ohlcv_data):
     r = 0

@@ -4,7 +4,8 @@ import time
 from ohlcv import OHLCV
 import ccxt
 from ccxt.base.decimal_to_precision import ROUND_UP
-from strategy import *
+import numpy as np
+from backtesting.strategy import *
 
 msec = 1000
 minute = 60 * msec
@@ -18,7 +19,7 @@ exchange = ccxt.binance(
     }
 )
 
-from_datetime = '2022-06-01 00:00:00'
+from_datetime = '2022-01-01 00:00:00'
 since = exchange.parse8601(from_datetime)
 
 # Structure: [timestamp,     open,     high,     low,      close,    volume]
@@ -32,6 +33,8 @@ while True:
         ohlcv_data = exchange.fetch_ohlcv('BTC/USDT', '30m', since=since)
         print(exchange.milliseconds(), 'Fetched', len(ohlcv_data), 'candles')
 
+        ohlcv_data = ohlcv_data
+
         ohlcvs = [OHLCV(*data) for data in ohlcv_data]
 
         if len(ohlcv_data):
@@ -40,19 +43,14 @@ while True:
             since = ohlcv_data[-1][0] + 1
         else:
             break
-        #two_to_one_engulf_long(ohlcvs, ohlcv_data)
-        #two_to_one_engulf_short(ohlcvs, ohlcv_data)
-        #macd_strategy_long(ohlcvs, ohlcv_data)
-        #macd_strategy_short(ohlcvs, ohlcv_data)
     except (ccxt.ExchangeError, ccxt.AuthenticationError, ccxt.ExchangeNotAvailable, ccxt.RequestTimeout) as error:
         print('Got an error')
 
-# short_r, short_num_stops, short_num_profits, short_num_positions = two_to_one_engulf_short(all_ohlcvs, all_ohlcvs_data)
-# long_r, long_num_stops, long_num_profits, long_num_positions = two_to_one_engulf_long(all_ohlcvs, all_ohlcvs_data)
-short_r, short_num_stops, short_num_profits, short_num_positions = macd_engulf_short(all_ohlcvs, all_ohlcvs_data)
-long_r, long_num_stops, long_num_profits, long_num_positions = macd_engulf_long(all_ohlcvs, all_ohlcvs_data)
+all_ohlcvs_data = np.array(all_ohlcvs_data)
+short_summary = two_to_one_engulf_short(all_ohlcvs, all_ohlcvs_data)
+long_summary = two_to_one_engulf_long(all_ohlcvs, all_ohlcvs_data)
 
-print(f'\nShort r: {short_r}, Long r: {long_r}, Total r: {long_r + short_r}\n')
+print(short_summary)
+print(long_summary)
 
-print(f'[Short] Win Rate: {short_num_profits/short_num_positions}, Number of Stops: {short_num_stops}, Number of Take Profits: {short_num_profits}')
-print(f'[Long] Win Rate: {long_num_profits/long_num_positions}, Number of Stops: {long_num_stops}, Number of Take Profits: {long_num_profits}')
+long_summary.visualize()
