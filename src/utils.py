@@ -4,7 +4,7 @@ import datetime
 def get_balance(exchange):
     return exchange.fetch_balance()
 
-def get_amount(budget, side, price, stop_loss, risk=2):
+def get_amount(budget, side, price, stop_loss, risk=1):
     amount = 0
     
     if side == 'buy':
@@ -14,10 +14,10 @@ def get_amount(budget, side, price, stop_loss, risk=2):
     else:
         print("Unknown side. Should be buy or sell")
 
-    print(amount)
+    assert(amount > 0.001, "Smaller than minimum amount 0.001")
+    assert(amount * price < budget, "Budget is not enough")
 
-    assert amount > 0.001
-    assert amount * price < budget
+    print(amount)
 
     return amount
 
@@ -32,12 +32,12 @@ def create_order(exchange, order):
         print(e)
         return None
 
-def get_x_days_ago_in_iso(x=2):
+def get_x_days_ago_in_iso(x=5):
     today = datetime.datetime.now()
-    delta = datetime.timedelta(days=2)
+    delta = datetime.timedelta(days=x)
     return (today - delta).isoformat()
 
 if __name__ == '__main__':
-    print(get_amount(80, 'buy', 20000, 19500))
-    print(get_amount(80, 'sell', 19500, 20000))
-    print(get_x_days_ago_in_iso(2))
+    #print(get_amount(80, 'buy', 20000, 19500))
+    print(get_amount(175, 'sell', 19702.4, 19742.5))
+    #print(get_x_days_ago_in_iso(2))

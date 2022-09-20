@@ -17,8 +17,7 @@ from ohlcv import OHLCV
 if __name__ == '__main__':
     symbol = 'BTC/USDT'
     timeframe = '30m'
-    budget = 80
-    risk_in_dollars = 5
+    risk_in_dollars = 1
 
     try:
         exchange = ccxt.binance({
@@ -33,20 +32,21 @@ if __name__ == '__main__':
 
     #### Delete closed orders
     try:
-        last_three_orders = exchange.fetch_orders(symbol)[-3:]
-        if len(last_three_orders) > 0:
-            last_limit_order = last_three_orders[0]
-            last_stop_order = last_three_orders[1]
-            last_profit_order = last_three_orders[2]
+        orders = exchange.fetch_open_orders(symbol)
+        if len(orders) > 0:
+            open_position = False
 
-            if last_stop_order['info']['status'] == 'FILLED' and last_profit_order['info']['status'] == 'FILLED':
-                print("Both closed")
-            else:
-                if last_stop_order['info']['status'] == 'FILLED':
-                    canceled = exchange.cancel_order(last_profit_order['id'], symbol)
+            # Check if there is an open position
+            for order in orders:
+                if order['type'] == 'limit':
+                    open_position = True
 
-                if last_profit_order['info']['status'] == 'FILLED':
-                    canceled = exchange.cancel_order(last_stop_order['id'], symbol)
+            # If there is no open position, cancel stop and take profit orders
+            if not open_position:
+                for order in orders:
+                    canceled = exchange.cancel_order(order['id'], symbol)
+        else:
+            print("There are no open positions")
     except Exception as e:
         print(e)
         print("Error while closing old orders")
@@ -55,9 +55,8 @@ if __name__ == '__main__':
         markets = exchange.load_markets()
 
         response = exchange.set_leverage(1, 'BTC/USDT')
-        print(response)
 
-        from_iso = get_x_days_ago_in_iso(x=2)
+        from_iso = get_x_days_ago_in_iso(x=5)
         since = exchange.parse8601(from_iso)
 
         ohlcv_data = exchange.fetch_ohlcv(symbol, timeframe, since=since)
@@ -72,35 +71,40 @@ if __name__ == '__main__':
         position = strategy.execute()
 
         if position:
-            amount = get_amount(balance['USDT']['free'], position.side, position.entry_price, position.stop_loss, risk=risk_in_dollars)
+            try:
+                amount = get_amount(balance['USDT']['free'], position.side, position.entry_price, position.stop_loss, risk=risk_in_dollars)
 
-            params = {}
-            
-            ########### Limit Order ###########
-            order = Order(symbol, "limit", position.side, amount, position.entry_price, params)
-            limit_order = create_order(exchange, order)
-            ###################################
+                params = {}
+                
+                ########### Limit Order ###########
+                order = Order(symbol, "limit", position.side, amount, position.entry_price, params)
+                limit_order = create_order(exchange, order)
+                ###################################
 
-            inverted_side = 'sell' if position.side == 'buy' else 'buy'
+                inverted_side = 'sell' if position.side == 'buy' else 'buy'
 
-            ########### Stop Loss ###########
-            stopLossParams = {
-                'stopPrice': exchange.price_to_precision(symbol, position.stop_loss)
-            }
-            
-            stop_loss_order = Order(symbol, "STOP_MARKET", inverted_side, amount, None, stopLossParams)
-            stop_order = create_order(exchange, stop_loss_order)
-            #################################
+                if limit_order:
+                    ########### Stop Loss ###########
+                    stopLossParams = {
+                        'stopPrice': exchange.price_to_precision(symbol, position.stop_loss)
+                    }
+                    
+                    stop_loss_order = Order(symbol, "STOP_MARKET", inverted_side, limit_order['amount'], None, stopLossParams)
+                    stop_order = create_order(exchange, stop_loss_order)
+                    #################################
 
-            ########### Take Profit ###########
-            takeProfitParams = {
-                'stopPrice': exchange.price_to_precision(symbol, position.take_profit)
-            }
-            take_profit_order = Order(symbol, "TAKE_PROFIT_MARKET", inverted_side, amount, None, takeProfitParams)
-            profit_order = create_order(exchange, take_profit_order)
-            ###################################
+                    ########### Take Profit ###########
+                    takeProfitParams = {
+                        'stopPrice': exchange.price_to_precision(symbol, position.take_profit)
+                    }
+                    take_profit_order = Order(symbol, "TAKE_PROFIT_MARKET", inverted_side, limit_order['amount'], None, takeProfitParams)
+                    profit_order = create_order(exchange, take_profit_order)
+                    ###################################
+            except Exception as e:
+                print(e)
+                exit()
 
         else:
-            print(f'Did not have any opportunity to open a position')
+            print(f'\nDid not have any opportunity to open a position')
     except Exception as e:
         print(e)
