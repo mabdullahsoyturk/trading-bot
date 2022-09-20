@@ -45,6 +45,9 @@ if __name__ == '__main__':
             if not open_position:
                 for order in orders:
                     canceled = exchange.cancel_order(order['id'], symbol)
+            else:
+                print("Exiting because there is already an open position")
+                exit()
         else:
             print("There are no open positions")
     except Exception as e:
