@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import datetime
 
 import numpy as np
 
@@ -57,11 +58,11 @@ if __name__ == '__main__':
         since = exchange.parse8601(from_iso)
 
         ohlcv_data = exchange.fetch_ohlcv(symbol, timeframe, since=since)
-        print(exchange.milliseconds(), 'Fetched', len(ohlcv_data), 'candles')
+        print(datetime.fromtimestamp(exchange.milliseconds()/1000.0), 'Fetched', len(ohlcv_data), 'candles')
         ohlcvs = [OHLCV(*data) for data in ohlcv_data[-4:]]
 
         balance = get_balance(exchange)
-        print(f'Current Free Balance: {balance["USDT"]["free"]}')
+        print(f'Current Free Balance: {balance}')
 
         strategy = EngulfingStrategy(ohlcvs, np.array(ohlcv_data))
 
@@ -69,7 +70,7 @@ if __name__ == '__main__':
 
         if position:
             try:
-                amount = get_amount(balance['USDT']['free'], position.side, position.entry_price, position.stop_loss, risk=risk_in_dollars)
+                amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=risk_in_dollars)
 
                 params = {}
                 

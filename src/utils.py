@@ -2,7 +2,7 @@ import ccxt
 import datetime
 
 def get_balance(exchange):
-    return exchange.fetch_balance()
+    return exchange.fetch_balance()["USDT"]["free"]
 
 def get_amount(budget, side, price, stop_loss, risk=1):
     amount = 0
@@ -14,8 +14,8 @@ def get_amount(budget, side, price, stop_loss, risk=1):
     else:
         print("Unknown side. Should be buy or sell")
 
-    assert(amount > 0.001, "Smaller than minimum amount 0.001")
-    assert(amount * price < budget, "Budget is not enough")
+    assert amount > 0.001, "Smaller than minimum amount 0.001"
+    assert amount * price < budget, "Budget is not enough"
 
     print(amount)
 
