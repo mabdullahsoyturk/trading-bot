@@ -19,7 +19,7 @@ exchange = ccxt.binance(
     }
 )
 
-from_datetime = '2022-09-01 00:00:00'
+from_datetime = '2022-09-15 00:00:00'
 since = exchange.parse8601(from_datetime)
 
 # Structure: [timestamp,     open,     high,     low,      close,    volume]
@@ -47,7 +47,7 @@ all_ohlcvs_data = np.array(all_ohlcvs_data)
 short_summary = two_to_one_engulf_short(all_ohlcvs, all_ohlcvs_data)
 long_summary = two_to_one_engulf_long(all_ohlcvs, all_ohlcvs_data)
 
-print(short_summary)
-print(long_summary)
+print("\n", short_summary)
+print("\n", long_summary)
 
-long_summary.visualize()
+#long_summary.visualize()

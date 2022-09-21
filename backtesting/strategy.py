@@ -41,12 +41,14 @@ def two_to_one_engulf_long(ohlcvs, ohlcv_data):
                     close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
                     print(f'[{close_time}] Take profit')
                     summary.r_history.append(rr)
+                    summary.durations.append((close_time - open_time).total_seconds())
                     break
 
                 if candle.lowest <= stop_loss:
                     close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
                     print(f'[{close_time}] Stop loss')
                     summary.r_history.append(-1)
+                    summary.durations.append((close_time - open_time).total_seconds())
                     break
 
     return summary
@@ -86,12 +88,14 @@ def two_to_one_engulf_short(ohlcvs, ohlcv_data):
                     close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
                     print(f'[{close_time}] Take profit')
                     summary.r_history.append(rr)
+                    summary.durations.append((close_time - open_time).total_seconds())
                     break
 
                 if candle.highest >= stop_loss:
                     close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
                     print(f'[{close_time}] Stop loss')
                     summary.r_history.append(-1)
+                    summary.durations.append((close_time - open_time).total_seconds())
                     break
 
     return summary

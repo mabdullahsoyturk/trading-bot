@@ -32,24 +32,18 @@ if __name__ == '__main__':
 
     #### Delete closed orders
     try:
-        orders = exchange.fetch_open_orders(symbol)
-        if len(orders) > 0:
-            open_position = False
+        positions = exchange.fetch_positions([symbol])
+        
+        if positions[-1]['contracts'] > 0:
+            print("Exiting because there is already an open position")
+            exit()
+        else:
+            orders = exchange.fetch_open_orders(symbol)
 
-            # Check if there is an open position
-            for order in orders:
-                if order['type'] == 'limit':
-                    open_position = True
-
-            # If there is no open position, cancel stop and take profit orders
-            if not open_position:
+            if len(orders) > 0:
                 for order in orders:
                     canceled = exchange.cancel_order(order['id'], symbol)
-            else:
-                print("Exiting because there is already an open position")
-                exit()
-        else:
-            print("There are no open positions")
+                print("Cancelled all stops and take profits")
     except Exception as e:
         print(e)
         print("Error while closing old orders")
