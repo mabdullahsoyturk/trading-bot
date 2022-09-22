@@ -3,6 +3,7 @@ import datetime
 import talib
 
 from src.position import Position
+from ohlcv import OHLCV
 from src.strategies.strategy import Strategy
 
 class EngulfingStrategy(Strategy):
@@ -14,12 +15,16 @@ class EngulfingStrategy(Strategy):
 
         Avoids fluctuations with ATR. If last candle moves more than 2 ATR, do not enter.  
     """
-    def __init__(self, ohlcvs, ohlcv_data, timeperiod=200, atr_multiplier=2):
-        super().__init__(ohlcvs, ohlcv_data, rr=2)
+    def __init__(self, ohlcv_data, timeperiod=200, atr_multiplier=2):
+        super().__init__(ohlcv_data, rr=2)
         self.timeperiod = timeperiod
         self.atr_multiplier = atr_multiplier
+        self.ohlcvs = [OHLCV(*data) for data in self.ohlcv_data[-4:]]
         self.ema = talib.EMA(self.closes, timeperiod=timeperiod)
         self.atr = talib.ATR(self.highs, self.lows, self.closes)
+
+    def get_last_three_candles(self):
+        return self.ohlcvs[0], self.ohlcvs[1], self.ohlcvs[2]
 
     def execute(self):
         long_position = self.long()
@@ -53,7 +58,7 @@ class EngulfingStrategy(Strategy):
             take_profit = entry_price + (entry_price - stop_loss) * self.rr
 
             print(f'\n[LONG][{open_time}] Opened at: {entry_price}, Stop Loss: {stop_loss}, Take Profit: {take_profit}, EMA: {self.ema[-2]} ATR: {self.atr[-2]}')
-            position = Position("buy", open_time, entry_price, stop_loss, take_profit, self.ema[-2], self.atr[-2])
+            position = Position("buy", open_time, entry_price, stop_loss, take_profit)
             
             return position
 
@@ -80,6 +85,19 @@ class EngulfingStrategy(Strategy):
 
             print(f'\n[SHORT][{open_time}] Opened at: {entry_price}, Stop Loss: {stop_loss}, Take Profit: {take_profit}, EMA: {self.ema[-2]} ATR: {self.atr[-2]}')
 
-            position = Position("sell", open_time, entry_price, stop_loss, take_profit, self.ema[-2], self.atr[-2])
+            position = Position("sell", open_time, entry_price, stop_loss, take_profit)
 
             return position
+
+    def backtest_long(self):
+        return None
+
+    def backtest_short(self):
+        return None
+
+    def backtest(self, since):
+        short_summary = self.backtest_short()
+        long_summary = self.backtest_long()
+
+        print("\n", short_summary)
+        print("\n", long_summary)

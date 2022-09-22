@@ -10,10 +10,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from src.utils import get_balance, get_amount, get_x_days_ago_in_iso, create_order
-from src.strategies.engulfing import EngulfingStrategy
+from src.strategies import EngulfingStrategy, MacdStrategy
 from src.order import Order
-
-from ohlcv import OHLCV
 
 if __name__ == '__main__':
     symbol = 'BTC/USDT'
@@ -59,12 +57,12 @@ if __name__ == '__main__':
 
         ohlcv_data = exchange.fetch_ohlcv(symbol, timeframe, since=since)
         print(datetime.fromtimestamp(exchange.milliseconds()/1000.0), 'Fetched', len(ohlcv_data), 'candles')
-        ohlcvs = [OHLCV(*data) for data in ohlcv_data[-4:]]
 
         balance = get_balance(exchange)
         print(f'Current Free Balance: {balance}')
 
-        strategy = EngulfingStrategy(ohlcvs, np.array(ohlcv_data))
+        strategy = EngulfingStrategy(ohlcv_data)
+        #strategy = MacdStrategy(ohlcv_data)
 
         position = strategy.execute()
 
