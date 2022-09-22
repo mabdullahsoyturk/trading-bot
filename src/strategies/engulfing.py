@@ -14,6 +14,8 @@ class EngulfingStrategy(Strategy):
         b. 1 down engulf after 2 up in a downtrend (below 200 EMA)
 
         Avoids fluctuations with ATR. If last candle moves more than 2 ATR, do not enter.  
+
+        rr = Reward/Risk Ratio
     """
     def __init__(self, ohlcv_data, timeperiod=200, atr_multiplier=2):
         super().__init__(ohlcv_data, rr=2)

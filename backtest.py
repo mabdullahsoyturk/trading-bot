@@ -3,7 +3,6 @@ import sys
 import time
 from ohlcv import OHLCV
 import ccxt
-from ccxt.base.decimal_to_precision import ROUND_UP
 import numpy as np
 from backtesting.strategy import *
 
@@ -19,7 +18,7 @@ exchange = ccxt.binance(
     }
 )
 
-from_datetime = '2022-09-15 00:00:00'
+from_datetime = '2022-06-01 00:00:00'
 since = exchange.parse8601(from_datetime)
 
 # Structure: [timestamp,     open,     high,     low,      close,    volume]
