@@ -13,94 +13,61 @@ from src.utils import get_balance, get_amount, get_x_days_ago_in_iso, create_ord
 from src.strategies import EngulfingStrategy, MacdStrategy
 from src.order import Order
 
+from src.exchange import Exchange
+
+SYMBOL = 'BTC/USDT'
+TIMEFRAME = '30m'
+RISK_IN_DOLLARS = 1
+
 if __name__ == '__main__':
-    symbol = 'BTC/USDT'
-    timeframe = '30m'
-    risk_in_dollars = 1
+    exchange = Exchange()
 
-    try:
-        exchange = ccxt.binance({
-            'options': {
-                    'defaultType': 'future',
-            },
-            'apiKey': f'{os.getenv("API_KEY")}',
-            'secret': f'{os.getenv("SECRET")}',
-        })
-    except Exception as e:
-        print("Couldn't connect to binance")
+    #### Delete stop and take profit orders if the position is closed
+    if not exchange.position_exists(SYMBOL): 
+        exchange.cancel_all_open_orders(SYMBOL)
 
-    #### Delete closed orders
-    try:
-        positions = exchange.fetch_positions([symbol])
+    exchange.set_leverage(leverage=1, ticker='BTC/USDT')
+
+    from_iso = get_x_days_ago_in_iso(x=5)
+    since = exchange.iso_to_timestamp(from_iso)
+
+    ohlcv_data = exchange.get_ohlcv_data(SYMBOL, TIMEFRAME, since=since)
+
+    balance = exchange.get_free_balance()
+    print(f'Current Free Balance: {balance}')
+
+    strategy = EngulfingStrategy(ohlcv_data)
+    #strategy = MacdStrategy(ohlcv_data)
+
+    position = strategy.execute()
+
+    if position:
+        amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=risk_in_dollars)
+
+        params = {}
         
-        if positions[-1]['contracts'] > 0:
-            print("Exiting because there is already an open position")
-            exit()
-        else:
-            orders = exchange.fetch_open_orders(symbol)
+        ########### Limit Order ###########
+        order = Order(SYMBOL, "limit", position.side, amount, position.entry_price, params)
+        limit_order = exchange.create_order(order)
+        ###################################
 
-            if len(orders) > 0:
-                for order in orders:
-                    canceled = exchange.cancel_order(order['id'], symbol)
-                print("Cancelled all stops and take profits")
-    except Exception as e:
-        print(e)
-        print("Error while closing old orders")
+        inverted_side = 'sell' if position.side == 'buy' else 'buy'
 
-    try:
-        markets = exchange.load_markets()
+        ########### Stop Loss ###########
+        stopLossParams = {
+            'stopPrice': exchange.price_to_precision(SYMBOL, position.stop_loss)
+        }
+        
+        stop_loss_order = Order(SYMBOL, "STOP_MARKET", inverted_side, limit_order['amount'], None, stopLossParams)
+        stop_order = exchange.create_order(stop_loss_order)
+        #################################
 
-        response = exchange.set_leverage(1, 'BTC/USDT')
-
-        from_iso = get_x_days_ago_in_iso(x=5)
-        since = exchange.parse8601(from_iso)
-
-        ohlcv_data = exchange.fetch_ohlcv(symbol, timeframe, since=since)
-        print(datetime.fromtimestamp(exchange.milliseconds()/1000.0), 'Fetched', len(ohlcv_data), 'candles')
-
-        balance = get_balance(exchange)
-        print(f'Current Free Balance: {balance}')
-
-        strategy = EngulfingStrategy(ohlcv_data)
-        #strategy = MacdStrategy(ohlcv_data)
-
-        position = strategy.execute()
-
-        if position:
-            try:
-                amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=risk_in_dollars)
-
-                params = {}
-                
-                ########### Limit Order ###########
-                order = Order(symbol, "limit", position.side, amount, position.entry_price, params)
-                limit_order = create_order(exchange, order)
-                ###################################
-
-                inverted_side = 'sell' if position.side == 'buy' else 'buy'
-
-                if limit_order:
-                    ########### Stop Loss ###########
-                    stopLossParams = {
-                        'stopPrice': exchange.price_to_precision(symbol, position.stop_loss)
-                    }
-                    
-                    stop_loss_order = Order(symbol, "STOP_MARKET", inverted_side, limit_order['amount'], None, stopLossParams)
-                    stop_order = create_order(exchange, stop_loss_order)
-                    #################################
-
-                    ########### Take Profit ###########
-                    takeProfitParams = {
-                        'stopPrice': exchange.price_to_precision(symbol, position.take_profit)
-                    }
-                    take_profit_order = Order(symbol, "TAKE_PROFIT_MARKET", inverted_side, limit_order['amount'], None, takeProfitParams)
-                    profit_order = create_order(exchange, take_profit_order)
-                    ###################################
-            except Exception as e:
-                print(e)
-                exit()
-
-        else:
-            print(f'\nDid not have any opportunity to open a position')
-    except Exception as e:
-        print(e)
+        ########### Take Profit ###########
+        takeProfitParams = {
+            'stopPrice': exchange.price_to_precision(SYMBOL, position.take_profit)
+        }
+        take_profit_order = Order(SYMBOL, "TAKE_PROFIT_MARKET", inverted_side, limit_order['amount'], None, takeProfitParams)
+        profit_order = exchange.create_order(take_profit_order)
+        ###################################
+    else:
+        print(f'\nDid not have any opportunity to open a position')
