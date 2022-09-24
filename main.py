@@ -16,11 +16,11 @@ if __name__ == '__main__':
 
     exchange.set_leverage(leverage=1, ticker=args.symbol)
 
-    from_iso = get_x_days_ago_in_iso(x=5)
+    from_iso = get_x_days_ago_in_iso(x=20)
     since = exchange.iso_to_timestamp(from_iso)
 
     # Get data
-    ohlcv_data = exchange.get_ohlcv_data(args.symbol, args.timeframe, since=since)
+    ohlcv_data = exchange.get_ohlcv_data(args.symbol, args.timeframe, since)
 
     balance = exchange.get_free_balance()
     print(f'Current Free Balance: {balance}')

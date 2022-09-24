@@ -20,16 +20,17 @@ class EngulfingStrategy(Strategy):
         super().__init__(ohlcv_data, rr=2)
         self.timeperiod = timeperiod
         self.atr_multiplier = atr_multiplier
-        self.ohlcvs = [OHLCV(*data) for data in self.ohlcv_data[-4:]]
+        self.ohlcvs = [OHLCV(*data) for data in self.ohlcv_data]
         self.ema = talib.EMA(self.closes, timeperiod=timeperiod)
         self.atr = talib.ATR(self.highs, self.lows, self.closes)
 
     def get_last_three_candles(self):
-        return self.ohlcvs[0], self.ohlcvs[1], self.ohlcvs[2]
+        return self.ohlcvs[-4], self.ohlcvs[-3], self.ohlcvs[-2]
 
     def execute(self):
-        long_position = self.long()
-        short_position = self.short()
+        first_candle, second_candle, engulf_candle = self.get_last_three_candles()
+        long_position = self.long(first_candle, second_candle, engulf_candle)
+        short_position = self.short(first_candle, second_candle, engulf_candle)
 
         if long_position:
             return long_position
@@ -37,15 +38,14 @@ class EngulfingStrategy(Strategy):
         if short_position:
             return short_position
 
-    def long(self):
-        first_candle, second_candle, engulf_candle = self.get_last_three_candles()
+    def long(self, first_candle, second_candle, engulf_candle):
         open_time = datetime.datetime.fromtimestamp(engulf_candle.timestamp/1000.0)
 
         print(f'\n[LONG, {open_time}] First Candle Check: {first_candle.close_price < first_candle.open_price}')
         print(f'[LONG, {open_time}] Second Candle Check: {second_candle.close_price < second_candle.open_price}')
         print(f'[LONG, {open_time}] Engulf Check: {engulf_candle.close_price > second_candle.open_price}')
         print(f'[LONG, {open_time}] ATR Check: {engulf_candle.highest - engulf_candle.lowest < self.atr[-2] * self.atr_multiplier}')
-        print(f'[LONG, {open_time}] EMA Check: {self.ema[-2] < engulf_candle.close_price}')
+        print(f'[LONG, {open_time}] EMA: {self.ema[-2]}, Close: {engulf_candle.close_price}')
 
         if first_candle.close_price < first_candle.open_price and \
                 second_candle.close_price < second_candle.open_price and \
@@ -63,15 +63,14 @@ class EngulfingStrategy(Strategy):
             
             return position
 
-    def short(self):
-        first_candle, second_candle, engulf_candle = self.get_last_three_candles()
+    def short(self, first_candle, second_candle, engulf_candle):
         open_time = datetime.datetime.fromtimestamp(engulf_candle.timestamp/1000.0)
 
         print(f'\n[SHORT, {open_time}] First Candle Check: {first_candle.close_price > first_candle.open_price}')
         print(f'[SHORT, {open_time}] Second Candle Check: {second_candle.close_price > second_candle.open_price}')
         print(f'[SHORT, {open_time}] Engulf Check: {engulf_candle.close_price < second_candle.open_price}')
         print(f'[SHORT, {open_time}] ATR Check: {engulf_candle.highest - engulf_candle.lowest < self.atr[-2] * self.atr_multiplier}')
-        print(f'[SHORT, {open_time}] EMA Check: {self.ema[-2] > engulf_candle.close_price}')
+        print(f'[SHORT, {open_time}] EMA: {self.ema[-2]}, Close: {engulf_candle.close_price}')
 
         if first_candle.close_price > first_candle.open_price and \
                 second_candle.close_price > second_candle.open_price and \
@@ -91,14 +90,66 @@ class EngulfingStrategy(Strategy):
             return position
 
     def backtest_long(self):
-        return None
+        positions = []
+
+        for index in range(2, len(self.ohlcvs)):
+            first_candle = self.ohlcvs[index - 2]
+            second_candle = self.ohlcvs[index - 1]
+            engulf_candle = self.ohlcvs[index]
+
+            position = self.long(first_candle, second_candle, engulf_candle)
+
+            if position:
+                for runner_index in range(index + 1, len(self.ohlcvs)):
+                    candle = self.ohlcvs[runner_index]
+
+                    if candle.highest > position.take_profit:
+                        close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
+                        print(f'[{close_time}] Take profit')
+                        position.rr = self.rr
+                        break
+
+                    if candle.lowest <= position.stop_loss:
+                        close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
+                        print(f'[{close_time}] Stop loss')
+                        position.rr = -1
+                        break
+
+                positions.append(position)
+
+        return positions
 
     def backtest_short(self):
-        return None
+        positions = []
 
-    def backtest(self, since):
-        short_summary = self.backtest_short()
-        long_summary = self.backtest_long()
+        for index in range(2, len(self.ohlcvs)):
+            first_candle = self.ohlcvs[index - 2]
+            second_candle = self.ohlcvs[index - 1]
+            engulf_candle = self.ohlcvs[index]
 
-        print("\n", short_summary)
-        print("\n", long_summary)
+            position = self.short(first_candle, second_candle, engulf_candle)
+
+            if position:
+                for runner_index in range(index + 1, len(self.ohlcvs)):
+                    candle = self.ohlcvs[runner_index]
+
+                    if candle.lowest < position.take_profit:
+                        close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
+                        print(f'[{close_time}] Take profit')
+                        position.rr = self.rr
+                        break
+
+                    if candle.highest >= position.stop_loss:
+                        close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
+                        print(f'[{close_time}] Stop loss')
+                        position.rr = -1
+                        break
+
+                positions.append(position)
+
+        return positions
+
+    def backtest(self):
+        long_positions = self.backtest_long()
+        short_positions = self.backtest_short()
+        all_positions = long_positions + short_positions

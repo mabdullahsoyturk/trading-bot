@@ -25,9 +25,21 @@ class Exchange:
         except Exception as e:
             sys.exit(f'Could not connect to binance: {e}')
 
-    def get_ohlcv_data(self, symbol, timeframe, since):
+    def get_ohlcv_data(self, symbol, timeframe, since_start):
+        all_ohlcvs_data = []
+        since = since_start
+        
         try:
-            return self.exchange.fetch_ohlcv(symbol, timeframe, since=since)
+            while True:
+                ohlcv_data = self.exchange.fetch_ohlcv(symbol, timeframe, since=since)
+
+                if len(ohlcv_data):
+                    all_ohlcvs_data += ohlcv_data
+                    since = ohlcv_data[-1][0] + 1
+                else:
+                    break
+
+            return all_ohlcvs_data
         except Exception as e:
             sys.exit(f'Could not get ohlcv data: {e}')
 

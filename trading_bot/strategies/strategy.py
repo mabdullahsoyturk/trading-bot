@@ -20,7 +20,7 @@ class Strategy(ABC):
         self.closes = self.ohlcv_data[:, 4]
         self.rr = rr
 
-    def backtest(self, since):
+    def backtest(self):
         pass
 
     @abstractmethod
