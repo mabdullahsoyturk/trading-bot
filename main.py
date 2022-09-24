@@ -11,7 +11,7 @@ load_dotenv()
 
 from src.utils import get_balance, get_amount, get_x_days_ago_in_iso, create_order
 from src.strategies import EngulfingStrategy, MacdStrategy
-from src.order import Order
+from src.data import Order
 
 from src.exchange import Exchange
 
@@ -31,18 +31,21 @@ if __name__ == '__main__':
     from_iso = get_x_days_ago_in_iso(x=5)
     since = exchange.iso_to_timestamp(from_iso)
 
+    # Get data
     ohlcv_data = exchange.get_ohlcv_data(SYMBOL, TIMEFRAME, since=since)
 
     balance = exchange.get_free_balance()
     print(f'Current Free Balance: {balance}')
 
+    # Run strategy
     strategy = EngulfingStrategy(ohlcv_data)
     #strategy = MacdStrategy(ohlcv_data)
 
     position = strategy.execute()
 
     if position:
-        amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=risk_in_dollars)
+        # If strategy returns a position, open it
+        amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=RISK_IN_DOLLARS)
 
         params = {}
         

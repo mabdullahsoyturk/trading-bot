@@ -1,7 +1,7 @@
 import os
 import sys
 import time
-from ohlcv import OHLCV
+from src.data import OHLCV
 import ccxt
 import numpy as np
 from backtesting.strategy import *

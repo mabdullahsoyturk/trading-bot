@@ -2,8 +2,7 @@ import numpy as np
 import talib
 import datetime
 
-from src.position import Position
-from ohlcv import OHLCV
+from src.data import OHLCV, Position
 from src.strategies.strategy import Strategy
 
 timeperiod = 200

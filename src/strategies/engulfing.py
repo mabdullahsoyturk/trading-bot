@@ -2,8 +2,7 @@ import numpy as np
 import datetime
 import talib
 
-from src.position import Position
-from ohlcv import OHLCV
+from src.data import OHLCV, Position
 from src.strategies.strategy import Strategy
 
 class EngulfingStrategy(Strategy):
