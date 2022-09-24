@@ -1,0 +1,5 @@
+ccxt==1.91.93
+matplotlib==3.6.0
+numpy==1.23.1
+python-dotenv==0.21.0
+TA-Lib==0.4.24
