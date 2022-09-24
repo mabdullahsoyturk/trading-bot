@@ -2,8 +2,8 @@ import numpy as np
 import datetime
 import talib
 
-from src.data import OHLCV, Position
-from src.strategies.strategy import Strategy
+from trading_bot.data import OHLCV, Position
+from trading_bot.strategies.strategy import Strategy
 
 class EngulfingStrategy(Strategy):
     """

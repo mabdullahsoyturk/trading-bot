@@ -1,8 +1,14 @@
-import ccxt
 import datetime
+import argparse
 
-def get_balance(exchange):
-    return exchange.fetch_balance()["USDT"]["free"]
+def get_args():
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument('--symbol', type=str, help='Ticker symbol', default='BTC/USDT')
+    parser.add_argument('--timeframe', type=str, help='Timeframe', default='30m')
+    parser.add_argument('--risk', type=int, help="Risk in dollars for 1R", default=1)
+
+    return parser.parse_args()
 
 def get_amount(budget, side, price, stop_loss, risk=1):
     amount = 0
@@ -20,17 +26,6 @@ def get_amount(budget, side, price, stop_loss, risk=1):
     print(amount)
 
     return amount
-
-def create_order(exchange, order):
-    try:
-        print(f'Trying to execute: {order}')
-        opened_order = exchange.create_order(order.symbol, order.type, order.side, order.amount, order.price, order.params)
-        print(opened_order)
-
-        return opened_order
-    except Exception as e:
-        print(e)
-        return None
 
 def get_x_days_ago_in_iso(x=5):
     today = datetime.datetime.now()

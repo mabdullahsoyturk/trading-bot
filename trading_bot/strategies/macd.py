@@ -2,8 +2,8 @@ import numpy as np
 import talib
 import datetime
 
-from src.data import OHLCV, Position
-from src.strategies.strategy import Strategy
+from trading_bot.data import OHLCV, Position
+from trading_bot.strategies.strategy import Strategy
 
 timeperiod = 200
 atr_multiplier = 1.5
