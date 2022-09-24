@@ -107,12 +107,14 @@ class EngulfingStrategy(Strategy):
                         close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
                         print(f'[{close_time}] Take profit')
                         position.rr = self.rr
+                        position.close_time = close_time
                         break
 
                     if candle.lowest <= position.stop_loss:
                         close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
                         print(f'[{close_time}] Stop loss')
                         position.rr = -1
+                        position.close_time = close_time
                         break
 
                 positions.append(position)
@@ -137,12 +139,14 @@ class EngulfingStrategy(Strategy):
                         close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
                         print(f'[{close_time}] Take profit')
                         position.rr = self.rr
+                        position.close_time = close_time
                         break
 
                     if candle.highest >= position.stop_loss:
                         close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
                         print(f'[{close_time}] Stop loss')
                         position.rr = -1
+                        position.close_time = close_time
                         break
 
                 positions.append(position)

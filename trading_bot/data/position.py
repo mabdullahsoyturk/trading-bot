@@ -3,9 +3,10 @@ from datetime import datetime
 
 @dataclass
 class Position:
-    side: str               # buy or sell
-    opening_time: datetime  # open time
-    entry_price: float      # entry price
-    stop_loss: float        # stop loss price
-    take_profit: float      # take profit price
-    rr: int = 0             # Reward/Risk Ratio
+    side: str                   # buy or sell
+    opening_time: datetime      # open time
+    entry_price: float          # entry price
+    stop_loss: float            # stop loss price
+    take_profit: float          # take profit price
+    rr: int = 0                 # reward/risk ratio
+    close_time: datetime = None # close time
