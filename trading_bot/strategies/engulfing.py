@@ -4,6 +4,7 @@ import talib
 
 from trading_bot.data import OHLCV, Position
 from trading_bot.strategies.strategy import Strategy
+from trading_bot.backtest import Summary
 
 class EngulfingStrategy(Strategy):
     """
@@ -104,17 +105,17 @@ class EngulfingStrategy(Strategy):
                     candle = self.ohlcvs[runner_index]
 
                     if candle.highest > position.take_profit:
-                        close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
-                        print(f'[{close_time}] Take profit')
+                        closing_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
+                        print(f'[{closing_time}] Take profit')
                         position.rr = self.rr
-                        position.close_time = close_time
+                        position.closing_time = closing_time
                         break
 
                     if candle.lowest <= position.stop_loss:
-                        close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
-                        print(f'[{close_time}] Stop loss')
+                        closing_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
+                        print(f'[{closing_time}] Stop loss')
                         position.rr = -1
-                        position.close_time = close_time
+                        position.closing_time = closing_time
                         break
 
                 positions.append(position)
@@ -136,17 +137,17 @@ class EngulfingStrategy(Strategy):
                     candle = self.ohlcvs[runner_index]
 
                     if candle.lowest < position.take_profit:
-                        close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
-                        print(f'[{close_time}] Take profit')
+                        closing_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
+                        print(f'[{closing_time}] Take profit')
                         position.rr = self.rr
-                        position.close_time = close_time
+                        position.closing_time = closing_time
                         break
 
                     if candle.highest >= position.stop_loss:
-                        close_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
-                        print(f'[{close_time}] Stop loss')
+                        closing_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
+                        print(f'[{closing_time}] Stop loss')
                         position.rr = -1
-                        position.close_time = close_time
+                        position.closing_time = closing_time
                         break
 
                 positions.append(position)
@@ -156,4 +157,7 @@ class EngulfingStrategy(Strategy):
     def backtest(self):
         long_positions = self.backtest_long()
         short_positions = self.backtest_short()
-        all_positions = long_positions + short_positions
+        
+        summary = Summary(self.rr, long_positions, short_positions)
+        summary.print()
+        

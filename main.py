@@ -29,6 +29,11 @@ if __name__ == '__main__':
     strategy = EngulfingStrategy(ohlcv_data)
     #strategy = MacdStrategy(ohlcv_data)
 
+    # Backtest
+    if args.backtest:
+        strategy.backtest()
+        exit()
+
     position = strategy.execute()
 
     if position:

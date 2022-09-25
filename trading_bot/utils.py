@@ -8,6 +8,8 @@ def get_args():
     parser.add_argument('--timeframe', type=str, help='Timeframe', default='30m')
     parser.add_argument('--risk', type=int, help="Risk in dollars for 1R", default=1)
 
+    parser.add_argument('--backtest', action='store_true')
+
     return parser.parse_args()
 
 def get_amount(budget, side, price, stop_loss, risk=1):

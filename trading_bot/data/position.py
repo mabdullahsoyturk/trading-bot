@@ -9,4 +9,4 @@ class Position:
     stop_loss: float            # stop loss price
     take_profit: float          # take profit price
     rr: int = 0                 # reward/risk ratio
-    close_time: datetime = None # close time
+    closing_time: datetime = None # close time
