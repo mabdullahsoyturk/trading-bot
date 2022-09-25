@@ -14,9 +14,9 @@ if __name__ == '__main__':
     if not exchange.position_exists(args.symbol): 
         exchange.cancel_all_open_orders(args.symbol)
 
-    exchange.set_leverage(leverage=1, ticker=args.symbol)
+    exchange.set_leverage(leverage=args.leverage, ticker=args.symbol)
 
-    from_iso = get_x_days_ago_in_iso(x=20)
+    from_iso = get_x_days_ago_in_iso(x=args.days_ago)
     since = exchange.iso_to_timestamp(from_iso)
 
     # Get data
