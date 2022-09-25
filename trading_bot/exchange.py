@@ -6,12 +6,17 @@ load_dotenv()
 
 import ccxt
 
+from trading_bot.utils import get_amount
+from trading_bot.data import Order
+
 class Exchange:
     """ An error safe exchange representation """
     
-    def __init__(self):
+    def __init__(self, args):
+        self.args = args
         self.exchange = self.init_exchange()
         self.exchange.load_markets()
+        self.set_leverage(args.leverage)
 
     def init_exchange(self):
         try:
@@ -91,9 +96,39 @@ class Exchange:
         except Exception as e:
             sys.exit(f'Could not fetch positions: {e}')
 
+    def open_position(self, position):
+        amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=self.args.risk)
+        
+        ########### Limit Order ###########
+        params = {}
+
+        order = Order(self.args.symbol, "limit", position.side, amount, position.entry_price, params)
+        limit_order = self.create_order(order)
+        ###################################
+
+        inverted_side = 'sell' if position.side == 'buy' else 'buy'
+
+        ########### Stop Loss Order ###########
+        stop_loss_params = {
+            'stopPrice': self.price_to_precision(self.args.symbol, position.stop_loss)
+        }
+        
+        stop_loss_order = Order(self.args.symbol, "STOP_MARKET", inverted_side, limit_order['amount'], None, stop_loss_params)
+        stop_order = self.create_order(stop_loss_order)
+        #################################
+
+        ########### Take Profit Order ###########
+        take_profit_params = {
+            'stopPrice': self.price_to_precision(self.args.symbol, position.take_profit)
+        }
+
+        take_profit_order = Order(self.args.symbol, "TAKE_PROFIT_MARKET", inverted_side, limit_order['amount'], None, take_profit_params)
+        profit_order = self.create_order(take_profit_order)
+        ###################################
+
     def set_leverage(self, leverage, ticker="BTC/USDT"):
         try:
-            self.exchange.set_leverage(1, ticker)
+            self.exchange.set_leverage(leverage, ticker)
         except Exception as e:
             sys.exit(f'Could not set leverage: {e}')
 
