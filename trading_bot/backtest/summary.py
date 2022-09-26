@@ -1,18 +1,20 @@
+from trading_bot.data import Position
+
 class Summary:
-    def __init__(self, rr, long_positions, short_positions):
+    def __init__(self, rr:float, long_positions:list[Position], short_positions:list[Position]):
         self.rr = rr
         self.long_positions = long_positions
         self.short_positions = short_positions
 
-    def get_r_history(self, positions):
+    def get_r_history(self, positions:list[Position]) -> list[float]:
         """ Returns r history of positions """
         return [position.rr for position in positions]
 
-    def get_durations(self, positions):
+    def get_durations(self, positions:list[Position]) -> list[float]:
         """ Returns durations of the positions in hours """
         return [(position.closing_time - position.opening_time).total_seconds() / 3600 for position in positions if position.closing_time]
 
-    def get_number_of_stops(self, positions):
+    def get_number_of_stops(self, positions:list[Position]) -> int:
         num_stops = 0
 
         for position in positions:
@@ -21,7 +23,7 @@ class Summary:
 
         return num_stops
 
-    def get_number_of_profits(self, positions):
+    def get_number_of_profits(self, positions:list[Position]) -> int:
         num_profits = 0
 
         for position in positions:
@@ -30,12 +32,12 @@ class Summary:
 
         return num_profits
 
-    def get_win_rate(self, positions):
+    def get_win_rate(self, positions:list[Position]) -> float:
         num_profits = self.get_number_of_profits(positions)
         num_positions = num_profits + self.get_number_of_stops(positions)
         return num_profits / num_positions if num_positions != 0 else 0
 
-    def get_longest_streak(self, positions):
+    def get_longest_streak(self, positions:list[Position]) -> tuple[int, int]:
         win_streak_element = self.rr
         lose_streak_element = -1
 
@@ -64,7 +66,7 @@ class Summary:
 
         return longest_win_streak, longest_lose_streak
 
-    def print(self):
+    def print(self) -> None:
         # R history
         long_r_history = self.get_r_history(self.long_positions)
         short_r_history = self.get_r_history(self.short_positions)

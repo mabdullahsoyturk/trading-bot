@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import Optional
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -31,7 +32,7 @@ class Exchange:
         except Exception as e:
             sys.exit(f'Could not connect to binance: {e}')
 
-    def get_ohlcv_data(self, symbol:str, timeframe:str, since_start: int) -> list:
+    def get_ohlcv_data(self, symbol:str, timeframe:str, since_start:int) -> list:
         all_ohlcvs_data = []
         since = since_start
         
@@ -49,7 +50,7 @@ class Exchange:
         except Exception as e:
             sys.exit(f'Could not get ohlcv data: {e}')
 
-    def get_free_balance(self, asset_name:str="USDT") -> float:
+    def get_free_balance(self, asset_name:Optional[str]="USDT") -> float:
         try:
             return self.exchange.fetch_balance()[asset_name]["free"]
         except Exception as e:
@@ -97,7 +98,7 @@ class Exchange:
         except Exception as e:
             sys.exit(f'Could not fetch positions: {e}')
 
-    def open_position(self, position: Position) -> None:
+    def open_position(self, position:Position) -> None:
         balance = self.get_free_balance()
         amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=self.args.risk)
         
@@ -128,7 +129,7 @@ class Exchange:
         profit_order = self.create_order(take_profit_order)
         ###################################
 
-    def set_leverage(self, leverage: int, ticker:str="BTC/USDT") -> None:
+    def set_leverage(self, leverage:int, ticker:Optional[str]="BTC/USDT") -> None:
         try:
             self.exchange.set_leverage(leverage, ticker)
         except Exception as e:

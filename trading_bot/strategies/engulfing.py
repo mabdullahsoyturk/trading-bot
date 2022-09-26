@@ -5,6 +5,8 @@ from trading_bot.data import OHLCV, Position
 from trading_bot.strategies.strategy import Strategy
 from trading_bot.backtest import Summary
 
+from typing import Union, Optional
+
 class EngulfingStrategy(Strategy):
     """
         Checks last 3 candles. Open position if:
@@ -24,10 +26,10 @@ class EngulfingStrategy(Strategy):
         self.ema = talib.EMA(self.closes, timeperiod=self.timeperiod)
         self.atr = talib.ATR(self.highs, self.lows, self.closes)
 
-    def get_last_three_candles(self):
+    def get_last_three_candles(self) -> tuple[OHLCV]:
         return self.ohlcvs[-4], self.ohlcvs[-3], self.ohlcvs[-2]
 
-    def execute(self):
+    def execute(self) -> Union[Position, None]:
         first_candle, second_candle, engulf_candle = self.get_last_three_candles()
         long_position = self.long(first_candle, second_candle, engulf_candle)
         short_position = self.short(first_candle, second_candle, engulf_candle)
@@ -38,7 +40,7 @@ class EngulfingStrategy(Strategy):
         if short_position:
             return short_position
 
-    def long(self, first_candle, second_candle, engulf_candle, index=-2):
+    def long(self, first_candle:OHLCV, second_candle:OHLCV, engulf_candle:OHLCV, index:Optional[int]=-2) -> Union[Position, None]:
         open_time = datetime.datetime.fromtimestamp(engulf_candle.timestamp/1000.0)
 
         print(f'\n[LONG, {open_time}] First Candle Check: {first_candle.close_price < first_candle.open_price}')
@@ -63,7 +65,7 @@ class EngulfingStrategy(Strategy):
             
             return position
 
-    def short(self, first_candle, second_candle, engulf_candle, index=-2):
+    def short(self, first_candle:OHLCV, second_candle:OHLCV, engulf_candle:OHLCV, index:Optional[int]=-2) -> Union[Position, None]:
         open_time = datetime.datetime.fromtimestamp(engulf_candle.timestamp/1000.0)
 
         print(f'\n[SHORT, {open_time}] First Candle Check: {first_candle.close_price > first_candle.open_price}')
@@ -89,7 +91,7 @@ class EngulfingStrategy(Strategy):
 
             return position
 
-    def backtest_long(self):
+    def backtest_long(self) -> list[Position]:
         positions = []
 
         for index in range(2, len(self.ohlcvs)):
@@ -121,7 +123,7 @@ class EngulfingStrategy(Strategy):
 
         return positions
 
-    def backtest_short(self):
+    def backtest_short(self) -> list[Position]:
         positions = []
 
         for index in range(2, len(self.ohlcvs)):
@@ -153,7 +155,7 @@ class EngulfingStrategy(Strategy):
 
         return positions
 
-    def backtest(self):
+    def backtest(self) -> None:
         long_positions = self.backtest_long()
         short_positions = self.backtest_short()
         
