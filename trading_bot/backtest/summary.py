@@ -10,7 +10,7 @@ class Summary:
 
     def get_durations(self, positions):
         """ Returns durations of the positions in hours """
-        return [(position.closing_time - position.opening_time).total_seconds() / 3600 for position in positions]
+        return [(position.closing_time - position.opening_time).total_seconds() / 3600 for position in positions if position.closing_time]
 
     def get_number_of_stops(self, positions):
         num_stops = 0
@@ -33,7 +33,7 @@ class Summary:
     def get_win_rate(self, positions):
         num_profits = self.get_number_of_profits(positions)
         num_positions = num_profits + self.get_number_of_stops(positions)
-        return num_profits / num_positions
+        return num_profits / num_positions if num_positions != 0 else 0
 
     def get_longest_streak(self, positions):
         win_streak_element = self.rr
