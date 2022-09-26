@@ -5,20 +5,21 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import ccxt
+from ccxt.binance import binance
 
 from trading_bot.utils import get_amount
-from trading_bot.data import Order
+from trading_bot.data import Order, Position
 
 class Exchange:
     """ An error safe exchange representation """
     
-    def __init__(self, args):
+    def __init__(self, args) -> None:
         self.args = args
         self.exchange = self.init_exchange()
         self.exchange.load_markets()
         self.set_leverage(args.leverage)
 
-    def init_exchange(self):
+    def init_exchange(self) -> binance:
         try:
             return ccxt.binance({
                 'options': {
@@ -30,7 +31,7 @@ class Exchange:
         except Exception as e:
             sys.exit(f'Could not connect to binance: {e}')
 
-    def get_ohlcv_data(self, symbol, timeframe, since_start):
+    def get_ohlcv_data(self, symbol:str, timeframe:str, since_start: int) -> list:
         all_ohlcvs_data = []
         since = since_start
         
@@ -48,19 +49,19 @@ class Exchange:
         except Exception as e:
             sys.exit(f'Could not get ohlcv data: {e}')
 
-    def get_free_balance(self, asset_name="USDT"):
+    def get_free_balance(self, asset_name:str="USDT") -> float:
         try:
             return self.exchange.fetch_balance()[asset_name]["free"]
         except Exception as e:
             sys.exit(f'Could not get free balance: {e}')
 
-    def cancel_order(self, symbol, order):
+    def cancel_order(self, symbol:str, order:dict) -> None:
         try:
             exchange.cancel_order(order['id'], symbol)
         except Exception as e:
             sys.exit(f'Could not cancel the order: {e}')
 
-    def cancel_all_open_orders(self, symbol):
+    def cancel_all_open_orders(self, symbol:str) -> None:
         try:
             orders = self.exchange.fetch_open_orders(symbol)
 
@@ -70,7 +71,7 @@ class Exchange:
         except Exception as e:
             sys.exit(f'Could not cancel all open orders: {e}')
 
-    def create_order(self, order):
+    def create_order(self, order: Order) -> dict:
         try:
             opened_order = self.exchange.create_order(order.symbol, order.type, order.side, order.amount, order.price, order.params)
             print(f'An order has ben created successfully: \n\n{opened_order}')
@@ -79,13 +80,13 @@ class Exchange:
         except Exception as e:
             sys.exit(f'Could not create the order: {e}')
 
-    def price_to_precision(self, symbol, price):
+    def price_to_precision(self, symbol:str, price:float):
         try:
             return self.exchange.price_to_precision(symbol, price)
         except Exception as e:
             sys.exit(f'Could not create the precision: {e}')
 
-    def position_exists(self, symbol):
+    def position_exists(self, symbol:str) -> bool:
         try:
             positions = self.exchange.fetch_positions([symbol])
             
@@ -96,7 +97,7 @@ class Exchange:
         except Exception as e:
             sys.exit(f'Could not fetch positions: {e}')
 
-    def open_position(self, position):
+    def open_position(self, position: Position) -> None:
         balance = self.get_free_balance()
         amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=self.args.risk)
         
@@ -127,13 +128,13 @@ class Exchange:
         profit_order = self.create_order(take_profit_order)
         ###################################
 
-    def set_leverage(self, leverage, ticker="BTC/USDT"):
+    def set_leverage(self, leverage: int, ticker:str="BTC/USDT") -> None:
         try:
             self.exchange.set_leverage(leverage, ticker)
         except Exception as e:
             sys.exit(f'Could not set leverage: {e}')
 
-    def iso_to_timestamp(self, iso):
+    def iso_to_timestamp(self, iso:str) -> int:
         try:
             return self.exchange.parse8601(iso)
         except Exception as e:

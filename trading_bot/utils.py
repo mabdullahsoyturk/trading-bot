@@ -17,7 +17,7 @@ def get_args():
 
     return parser.parse_args()
 
-def get_amount(budget, side, price, stop_loss, risk=1):
+def get_amount(budget:float, side:str, price:float, stop_loss:float, risk:float=1.0) -> float:
     amount = 0
     
     if side == 'buy':
@@ -30,11 +30,9 @@ def get_amount(budget, side, price, stop_loss, risk=1):
     assert amount > 0.001, "Smaller than minimum amount 0.001"
     assert amount * price < budget, "Budget is not enough"
 
-    print(amount)
-
     return amount
 
-def get_x_days_ago_in_iso(x=5):
+def get_x_days_ago_in_iso(x:int=5) -> str:
     today = datetime.datetime.now()
     delta = datetime.timedelta(days=x)
     return (today - delta).isoformat()
