@@ -19,9 +19,6 @@ if __name__ == '__main__':
     # Get data
     ohlcv_data = exchange.get_ohlcv_data(args.symbol, args.timeframe, since)
 
-    balance = exchange.get_free_balance()
-    print(f'Current Free Balance: {balance}')
-
     # Initialize strategy
     strategy = EngulfingStrategy(ohlcv_data, args)
 

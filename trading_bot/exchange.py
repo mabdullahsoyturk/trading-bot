@@ -97,6 +97,7 @@ class Exchange:
             sys.exit(f'Could not fetch positions: {e}')
 
     def open_position(self, position):
+        balance = self.get_free_balance()
         amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=self.args.risk)
         
         ########### Limit Order ###########
