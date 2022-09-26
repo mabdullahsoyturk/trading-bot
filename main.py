@@ -23,7 +23,7 @@ if __name__ == '__main__':
     print(f'Current Free Balance: {balance}')
 
     # Initialize strategy
-    strategy = EngulfingStrategy(ohlcv_data, timeperiod=args.ema_timeperiod, atr_multiplier=args.atr_multiplier)
+    strategy = EngulfingStrategy(ohlcv_data, args)
 
     # Backtest
     if args.backtest:

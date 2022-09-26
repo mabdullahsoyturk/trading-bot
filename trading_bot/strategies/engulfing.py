@@ -16,12 +16,12 @@ class EngulfingStrategy(Strategy):
 
         rr = Reward/Risk Ratio
     """
-    def __init__(self, ohlcv_data, timeperiod, atr_multiplier):
-        super().__init__(ohlcv_data, rr=2)
-        self.timeperiod = timeperiod
-        self.atr_multiplier = atr_multiplier
+    def __init__(self, ohlcv_data, args):
+        super().__init__(ohlcv_data, rr=args.rr)
+        self.timeperiod = args.ema_timeperiod
+        self.atr_multiplier = args.atr_multiplier
         self.ohlcvs = [OHLCV(*data) for data in self.ohlcv_data]
-        self.ema = talib.EMA(self.closes, timeperiod=timeperiod)
+        self.ema = talib.EMA(self.closes, timeperiod=self.timeperiod)
         self.atr = talib.ATR(self.highs, self.lows, self.closes)
 
     def get_last_three_candles(self):
