@@ -23,7 +23,7 @@ if __name__ == '__main__':
     print(f'Current Free Balance: {balance}')
 
     # Initialize strategy
-    strategy = EngulfingStrategy(ohlcv_data)
+    strategy = EngulfingStrategy(ohlcv_data, timeperiod=args.ema_timeperiod, atr_multiplier=args.atr_multiplier)
 
     # Backtest
     if args.backtest:
@@ -35,6 +35,6 @@ if __name__ == '__main__':
 
     # If strategy suggests a position, open it. Otherwise, don't do anything.
     if position:
-        exchange.open_position(position, args)
+        exchange.open_position(position)
     else:
         print(f'\nDid not have any opportunity to open a position')

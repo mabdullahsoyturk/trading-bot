@@ -16,7 +16,7 @@ class EngulfingStrategy(Strategy):
 
         rr = Reward/Risk Ratio
     """
-    def __init__(self, ohlcv_data, timeperiod=200, atr_multiplier=2):
+    def __init__(self, ohlcv_data, timeperiod, atr_multiplier):
         super().__init__(ohlcv_data, rr=2)
         self.timeperiod = timeperiod
         self.atr_multiplier = atr_multiplier
