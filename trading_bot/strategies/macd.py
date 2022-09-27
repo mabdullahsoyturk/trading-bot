@@ -1,5 +1,5 @@
 import numpy as np
-import talib
+import talib # type: ignore
 import datetime
 
 from trading_bot.data import OHLCV, Position

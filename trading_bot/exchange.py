@@ -5,8 +5,8 @@ from typing import Optional
 from dotenv import load_dotenv
 load_dotenv()
 
-import ccxt
-from ccxt.binance import binance
+import ccxt # type: ignore
+from ccxt.binance import binance # type: ignore
 
 from trading_bot.utils import get_amount
 from trading_bot.data import Order, Position
@@ -58,7 +58,7 @@ class Exchange:
 
     def cancel_order(self, symbol:str, order:dict) -> None:
         try:
-            exchange.cancel_order(order['id'], symbol)
+            self.exchange.cancel_order(order['id'], symbol)
         except Exception as e:
             sys.exit(f'Could not cancel the order: {e}')
 
@@ -103,7 +103,7 @@ class Exchange:
         amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=self.args.risk)
         
         ########### Limit Order ###########
-        params = {}
+        params:dict = {}
 
         order = Order(self.args.symbol, "limit", position.side, amount, position.entry_price, params)
         limit_order = self.create_order(order)

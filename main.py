@@ -1,4 +1,4 @@
-import ccxt
+import ccxt # type: ignore
 
 from trading_bot.utils import get_x_days_ago_in_iso, get_args
 from trading_bot.strategies import EngulfingStrategy, MacdStrategy

@@ -1,8 +1,6 @@
 import datetime
 import argparse
 
-from typing import Optional
-
 def get_args():
     parser = argparse.ArgumentParser()
     
@@ -19,8 +17,8 @@ def get_args():
 
     return parser.parse_args()
 
-def get_amount(budget:float, side:str, price:float, stop_loss:float, risk:Optional[float]=1.0) -> float:
-    amount = 0
+def get_amount(budget:float, side:str, price:float, stop_loss:float, risk:float=1.0) -> float:
+    amount = 0.0
     
     if side == 'buy':
         amount = risk / (price - stop_loss)
@@ -34,7 +32,7 @@ def get_amount(budget:float, side:str, price:float, stop_loss:float, risk:Option
 
     return amount
 
-def get_x_days_ago_in_iso(x:Optional[int]=5) -> str:
+def get_x_days_ago_in_iso(x:float=5.0) -> str:
     today = datetime.datetime.now()
     delta = datetime.timedelta(days=x)
     return (today - delta).isoformat()

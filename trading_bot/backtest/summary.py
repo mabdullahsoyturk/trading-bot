@@ -7,14 +7,36 @@ class Summary:
         self.short_positions = short_positions
 
     def get_r_history(self, positions:list[Position]) -> list[float]:
-        """ Returns r history of positions """
+        """Returns r history of positions
+
+        Args:
+            positions (list[Position]): List of Position objects
+
+        Returns:
+            list[float]: List of floats containing -1 or rr
+        """
         return [position.rr for position in positions]
 
     def get_durations(self, positions:list[Position]) -> list[float]:
-        """ Returns durations of the positions in hours """
+        """Returns durations of the positions in hours
+
+        Args:
+            positions (list[Position]): List of Position objects
+
+        Returns:
+            list[float]: List of durations in hours
+        """
         return [(position.closing_time - position.opening_time).total_seconds() / 3600 for position in positions if position.closing_time]
 
     def get_number_of_stops(self, positions:list[Position]) -> int:
+        """Number of stop loss positions
+
+        Args:
+            positions (list[Position]): List of Position objects
+
+        Returns:
+            int: Number of positions which hit the stop loss level
+        """
         num_stops = 0
 
         for position in positions:
@@ -24,6 +46,14 @@ class Summary:
         return num_stops
 
     def get_number_of_profits(self, positions:list[Position]) -> int:
+        """Number of take profit positions
+
+        Args:
+            positions (list[Position]): List of Position objects
+
+        Returns:
+            int: Number of positions which hit the take profit level
+        """
         num_profits = 0
 
         for position in positions:
@@ -33,11 +63,27 @@ class Summary:
         return num_profits
 
     def get_win_rate(self, positions:list[Position]) -> float:
+        """Calculates win rate of closed positions
+
+        Args:
+            positions (list[Position]): List of Position objects
+
+        Returns:
+            float: Win rate
+        """
         num_profits = self.get_number_of_profits(positions)
         num_positions = num_profits + self.get_number_of_stops(positions)
         return num_profits / num_positions if num_positions != 0 else 0
 
     def get_longest_streak(self, positions:list[Position]) -> tuple[int, int]:
+        """Number of longest consecutive wins and loses
+
+        Args:
+            positions (list[Position]): List of Position objects
+
+        Returns:
+            tuple[int, int]: Longest consecutive wins and loses
+        """
         win_streak_element = self.rr
         lose_streak_element = -1
 

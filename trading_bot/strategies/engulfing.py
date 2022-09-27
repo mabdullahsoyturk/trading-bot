@@ -1,11 +1,11 @@
 import datetime
-import talib
+import talib # type: ignore
 
 from trading_bot.data import OHLCV, Position
 from trading_bot.strategies.strategy import Strategy
 from trading_bot.backtest import Summary
 
-from typing import Union, Optional
+from typing import Union
 
 class EngulfingStrategy(Strategy):
     """
@@ -26,7 +26,7 @@ class EngulfingStrategy(Strategy):
         self.ema = talib.EMA(self.closes, timeperiod=self.timeperiod)
         self.atr = talib.ATR(self.highs, self.lows, self.closes)
 
-    def get_last_three_candles(self) -> tuple[OHLCV]:
+    def get_last_three_candles(self) -> tuple[OHLCV, OHLCV, OHLCV]:
         return self.ohlcvs[-4], self.ohlcvs[-3], self.ohlcvs[-2]
 
     def execute(self) -> Union[Position, None]:
@@ -39,8 +39,10 @@ class EngulfingStrategy(Strategy):
 
         if short_position:
             return short_position
+        
+        return None
 
-    def long(self, first_candle:OHLCV, second_candle:OHLCV, engulf_candle:OHLCV, index:Optional[int]=-2) -> Union[Position, None]:
+    def long(self, first_candle:OHLCV, second_candle:OHLCV, engulf_candle:OHLCV, index:int=-2) -> Union[Position, None]:
         open_time = datetime.datetime.fromtimestamp(engulf_candle.timestamp/1000.0)
 
         print(f'\n[LONG, {open_time}] First Candle Check: {first_candle.close_price < first_candle.open_price}')
@@ -65,7 +67,9 @@ class EngulfingStrategy(Strategy):
             
             return position
 
-    def short(self, first_candle:OHLCV, second_candle:OHLCV, engulf_candle:OHLCV, index:Optional[int]=-2) -> Union[Position, None]:
+        return None
+
+    def short(self, first_candle:OHLCV, second_candle:OHLCV, engulf_candle:OHLCV, index:int=-2) -> Union[Position, None]:
         open_time = datetime.datetime.fromtimestamp(engulf_candle.timestamp/1000.0)
 
         print(f'\n[SHORT, {open_time}] First Candle Check: {first_candle.close_price > first_candle.open_price}')
@@ -90,6 +94,8 @@ class EngulfingStrategy(Strategy):
             position = Position("sell", open_time, entry_price, stop_loss, take_profit)
 
             return position
+
+        return None
 
     def backtest_long(self) -> list[Position]:
         positions = []

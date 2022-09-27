@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Union, Optional
 
 import numpy as np
-import talib
+import talib # type: ignore
 
-from trading_bot.data import Position
+from trading_bot.data import Position, OHLCV
 
 class Strategy(ABC):
     """
@@ -16,7 +16,7 @@ class Strategy(ABC):
         - short() -> Short strategy
     """
     
-    def __init__(self, ohlcv_data:list, rr:Optional[float]=2.0):
+    def __init__(self, ohlcv_data:list, rr:float=2.0):
         self.ohlcv_data = np.array(ohlcv_data)
         self.highs = self.ohlcv_data[:, 2]
         self.lows = self.ohlcv_data[:, 3]
@@ -31,9 +31,9 @@ class Strategy(ABC):
         pass
 
     @abstractmethod
-    def long(self) -> Union[Position, None]:
+    def long(self, first_candle:OHLCV, second_candle:OHLCV, engulf_candle:OHLCV, index:int=-2) -> Union[Position, None]:
         pass
 
     @abstractmethod
-    def short(self) -> Union[Position, None]:
+    def short(self, first_candle:OHLCV, second_candle:OHLCV, engulf_candle:OHLCV, index:int=-2) -> Union[Position, None]:
         pass
