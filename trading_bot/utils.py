@@ -11,7 +11,7 @@ def get_args():
     parser.add_argument('--risk', type=int, help="Risk in dollars for 1R", default=1)
     parser.add_argument('--rr', type=float, help="Reward/Risk ratio", default=1.5)
     parser.add_argument('--leverage', type=int, help="Leverage in futures", default=1)
-    parser.add_argument('--days-ago', type=int, help="Decides how many days worth of data we need to pull", default=20)
+    parser.add_argument('--days-ago', type=float, help="Decides how many days worth of data we need to pull", default=20.0)
 
     parser.add_argument('--backtest', action='store_true')
 

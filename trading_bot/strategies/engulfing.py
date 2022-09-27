@@ -22,7 +22,6 @@ class EngulfingStrategy(Strategy):
         super().__init__(ohlcv_data, rr=args.rr)
         self.timeperiod = args.ema_timeperiod
         self.atr_multiplier = args.atr_multiplier
-        self.ohlcvs = [OHLCV(*data) for data in self.ohlcv_data]
         self.ema = talib.EMA(self.closes, timeperiod=self.timeperiod)
         self.atr = talib.ATR(self.highs, self.lows, self.closes)
 
@@ -96,75 +95,4 @@ class EngulfingStrategy(Strategy):
             return position
 
         return None
-
-    def backtest_long(self) -> list[Position]:
-        positions = []
-
-        for index in range(2, len(self.ohlcvs)):
-            first_candle = self.ohlcvs[index - 2]
-            second_candle = self.ohlcvs[index - 1]
-            engulf_candle = self.ohlcvs[index]
-
-            position = self.long(first_candle, second_candle, engulf_candle, index)
-
-            if position:
-                for runner_index in range(index + 1, len(self.ohlcvs)):
-                    candle = self.ohlcvs[runner_index]
-
-                    if candle.highest > position.take_profit:
-                        closing_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
-                        print(f'[{closing_time}] Take profit')
-                        position.rr = self.rr
-                        position.closing_time = closing_time
-                        break
-
-                    if candle.lowest <= position.stop_loss:
-                        closing_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
-                        print(f'[{closing_time}] Stop loss')
-                        position.rr = -1
-                        position.closing_time = closing_time
-                        break
-
-                positions.append(position)
-
-        return positions
-
-    def backtest_short(self) -> list[Position]:
-        positions = []
-
-        for index in range(2, len(self.ohlcvs)):
-            first_candle = self.ohlcvs[index - 2]
-            second_candle = self.ohlcvs[index - 1]
-            engulf_candle = self.ohlcvs[index]
-
-            position = self.short(first_candle, second_candle, engulf_candle, index)
-
-            if position:
-                for runner_index in range(index + 1, len(self.ohlcvs)):
-                    candle = self.ohlcvs[runner_index]
-
-                    if candle.lowest < position.take_profit:
-                        closing_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
-                        print(f'[{closing_time}] Take profit')
-                        position.rr = self.rr
-                        position.closing_time = closing_time
-                        break
-
-                    if candle.highest >= position.stop_loss:
-                        closing_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
-                        print(f'[{closing_time}] Stop loss')
-                        position.rr = -1
-                        position.closing_time = closing_time
-                        break
-
-                positions.append(position)
-
-        return positions
-
-    def backtest(self) -> None:
-        long_positions = self.backtest_long()
-        short_positions = self.backtest_short()
-        
-        summary = Summary(self.rr, long_positions, short_positions)
-        summary.print()
         

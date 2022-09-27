@@ -18,13 +18,11 @@ class Strategy(ABC):
     
     def __init__(self, ohlcv_data:list, rr:float=2.0):
         self.ohlcv_data = np.array(ohlcv_data)
+        self.ohlcvs = [OHLCV(*data) for data in self.ohlcv_data]
         self.highs = self.ohlcv_data[:, 2]
         self.lows = self.ohlcv_data[:, 3]
         self.closes = self.ohlcv_data[:, 4]
         self.rr = rr
-
-    def backtest(self) -> None:
-        pass
 
     @abstractmethod
     def execute(self) -> Union[Position, None]:
