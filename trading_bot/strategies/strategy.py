@@ -29,9 +29,9 @@ class Strategy(ABC):
         pass
 
     @abstractmethod
-    def long(self, first_candle:OHLCV, second_candle:OHLCV, engulf_candle:OHLCV, index:int=-2) -> Union[Position, None]:
+    def long(self, index:int=-2) -> Union[Position, None]:
         pass
 
     @abstractmethod
-    def short(self, first_candle:OHLCV, second_candle:OHLCV, engulf_candle:OHLCV, index:int=-2) -> Union[Position, None]:
+    def short(self, index:int=-2) -> Union[Position, None]:
         pass

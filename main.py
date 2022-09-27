@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # Backtest
     if args.backtest:
         backtester = Backtester(strategy, args)
-        backtester(strategy.ohlcvs)
+        backtester()
         exit()
 
     # Run strategy

@@ -25,13 +25,12 @@ class EngulfingStrategy(Strategy):
         self.ema = talib.EMA(self.closes, timeperiod=self.timeperiod)
         self.atr = talib.ATR(self.highs, self.lows, self.closes)
 
-    def get_last_three_candles(self) -> tuple[OHLCV, OHLCV, OHLCV]:
-        return self.ohlcvs[-4], self.ohlcvs[-3], self.ohlcvs[-2]
+    def get_three_candles(self, index:int=-2) -> tuple[OHLCV, OHLCV, OHLCV]:
+        return self.ohlcvs[index - 2], self.ohlcvs[index - 1], self.ohlcvs[index]
 
     def execute(self) -> Union[Position, None]:
-        first_candle, second_candle, engulf_candle = self.get_last_three_candles()
-        long_position = self.long(first_candle, second_candle, engulf_candle)
-        short_position = self.short(first_candle, second_candle, engulf_candle)
+        long_position = self.long()
+        short_position = self.short()
 
         if long_position:
             return long_position
@@ -41,7 +40,8 @@ class EngulfingStrategy(Strategy):
         
         return None
 
-    def long(self, first_candle:OHLCV, second_candle:OHLCV, engulf_candle:OHLCV, index:int=-2) -> Union[Position, None]:
+    def long(self, index:int=-2) -> Union[Position, None]:
+        first_candle, second_candle, engulf_candle = self.get_three_candles(index)
         open_time = datetime.datetime.fromtimestamp(engulf_candle.timestamp/1000.0)
 
         print(f'\n[LONG, {open_time}] First Candle Check: {first_candle.close_price < first_candle.open_price}')
@@ -68,7 +68,8 @@ class EngulfingStrategy(Strategy):
 
         return None
 
-    def short(self, first_candle:OHLCV, second_candle:OHLCV, engulf_candle:OHLCV, index:int=-2) -> Union[Position, None]:
+    def short(self, index:int=-2) -> Union[Position, None]:
+        first_candle, second_candle, engulf_candle = self.get_three_candles(index)
         open_time = datetime.datetime.fromtimestamp(engulf_candle.timestamp/1000.0)
 
         print(f'\n[SHORT, {open_time}] First Candle Check: {first_candle.close_price > first_candle.open_price}')

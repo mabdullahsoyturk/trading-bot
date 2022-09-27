@@ -6,11 +6,12 @@ from trading_bot.backtest import Summary
 class Backtester:
     def __init__(self, strategy, args):
         self.strategy = strategy
+        self.ohlcvs = strategy.ohlcvs
         self.args = args
 
-    def __call__(self, ohlcvs):
-        long_positions = self.backtest_long(ohlcvs)
-        short_positions = self.backtest_short(ohlcvs)
+    def __call__(self):
+        long_positions = self.backtest_long()
+        short_positions = self.backtest_short()
         
         summary = Summary(self.strategy.rr, long_positions, short_positions)
         summary.print()
@@ -22,19 +23,15 @@ class Backtester:
                 for position in long_positions + short_positions:
                     csv_writer.writerow(position.__repr__())
 
-    def backtest_long(self, ohlcvs):
+    def backtest_long(self):
         positions = []
 
-        for index in range(2, len(ohlcvs)):
-            first_candle = ohlcvs[index - 2]
-            second_candle = ohlcvs[index - 1]
-            engulf_candle = ohlcvs[index]
-
-            position = self.strategy.long(first_candle, second_candle, engulf_candle, index)
+        for index in range(2, len(self.ohlcvs)):
+            position = self.strategy.long(index)
 
             if position:
-                for runner_index in range(index + 1, len(ohlcvs)):
-                    candle = ohlcvs[runner_index]
+                for runner_index in range(index + 1, len(self.ohlcvs)):
+                    candle = self.ohlcvs[runner_index]
 
                     if candle.highest > position.take_profit:
                         closing_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
@@ -54,19 +51,15 @@ class Backtester:
 
         return positions
 
-    def backtest_short(self, ohlcvs):
+    def backtest_short(self):
         positions = []
 
-        for index in range(2, len(ohlcvs)):
-            first_candle = ohlcvs[index - 2]
-            second_candle = ohlcvs[index - 1]
-            engulf_candle = ohlcvs[index]
-
-            position = self.strategy.short(first_candle, second_candle, engulf_candle, index)
+        for index in range(2, len(self.ohlcvs)):
+            position = self.strategy.short(index)
 
             if position:
-                for runner_index in range(index + 1, len(ohlcvs)):
-                    candle = ohlcvs[runner_index]
+                for runner_index in range(index + 1, len(self.ohlcvs)):
+                    candle = self.ohlcvs[runner_index]
 
                     if candle.lowest < position.take_profit:
                         closing_time = datetime.datetime.fromtimestamp(candle.timestamp/1000.0)
