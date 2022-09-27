@@ -1,9 +1,12 @@
 import datetime
+import csv
+
 from trading_bot.backtest import Summary
 
 class Backtester:
-    def __init__(self, strategy):
+    def __init__(self, strategy, args):
         self.strategy = strategy
+        self.args = args
 
     def __call__(self, ohlcvs):
         long_positions = self.backtest_long(ohlcvs)
@@ -11,6 +14,13 @@ class Backtester:
         
         summary = Summary(self.strategy.rr, long_positions, short_positions)
         summary.print()
+
+        if self.args.backtest_export:
+            with open(self.args.export_path + "/backtest_positions.csv", 'w') as export_file:
+                csv_writer = csv.writer(export_file, delimiter=',')
+
+                for position in long_positions + short_positions:
+                    csv_writer.writerow(position.__repr__())
 
     def backtest_long(self, ohlcvs):
         positions = []
