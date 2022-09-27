@@ -14,6 +14,8 @@ def get_args():
     parser.add_argument('--days-ago', type=float, help="Decides how many days worth of data we need to pull", default=20.0)
 
     parser.add_argument('--backtest', action='store_true')
+    parser.add_argument('--export', action='store_true')
+    parser.add_argument('--export-path', type=str, help="Export path for positions", default="output")
 
     return parser.parse_args()
 
