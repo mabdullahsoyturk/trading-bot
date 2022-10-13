@@ -24,19 +24,25 @@ def get_args():
 def get_amount(budget:float, side:str, price:float, stop_loss:float, risk:float=1.0) -> float:
     amount = 0.0
     
-    if side == 'buy':
-        amount = risk / (price - stop_loss)
-    elif side == 'sell':
-        amount = risk / (stop_loss - price)
-    else:
-        print("Unknown side. Should be buy or sell")
-    
-    print(f'Budget: {budget}, Amount: {amount}, Cost: {amount * price}')
+    try:
+        if side == 'buy':
+            amount = risk / (price - stop_loss)
+        elif side == 'sell':
+            amount = risk / (stop_loss - price)
+        else:
+            print("Unknown side. Should be buy or sell")
+        
+        print(f'Budget: {budget}, Amount: {amount}, Cost: {amount * price}')
 
-    assert amount > 0.001, "Smaller than minimum amount 0.001"
-    assert amount * price < budget, "Budget is not enough"
-
-    return amount
+        if amount < 0.001:
+            raise Exception("Smaller than minimum amount 0.001")
+        if amount * price > budget:
+            raise Exception("Budget is not enough")
+        
+        return amount
+    except Exception as e:
+        print(e)
+        return None
 
 def get_x_days_ago_in_iso(x:float=5.0) -> str:
     today = datetime.datetime.now()

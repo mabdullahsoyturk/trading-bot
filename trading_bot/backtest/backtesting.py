@@ -2,12 +2,14 @@ import datetime
 import csv
 
 from trading_bot.backtest import Summary
+from trading_bot.utils import get_amount
 
 class Backtester:
-    def __init__(self, strategy, args):
+    def __init__(self, strategy, args, balance):
         self.strategy = strategy
         self.ohlcvs = strategy.ohlcvs
         self.args = args
+        self.balance = balance
 
     def __call__(self):
         long_positions = self.backtest_long()
@@ -23,6 +25,12 @@ class Backtester:
                 for position in long_positions + short_positions:
                     csv_writer.writerow(position.__repr__())
 
+    def get_cost(self, position, amount):
+        if amount:
+            return amount * position.entry_price
+
+        return None
+
     def backtest_long(self):
         positions = []
 
@@ -30,6 +38,15 @@ class Backtester:
             position = self.strategy.long(index)
 
             if position:
+                amount = get_amount(self.balance, position.side, position.entry_price, position.stop_loss, risk=self.args.risk)
+                cost = self.get_cost(position, amount)
+                if cost:
+                    print(f'[{position.opening_time}] --> Cost: {cost}$')
+                else:
+                    continue
+
+                self.balance -= cost
+
                 for runner_index in range(index + 1, len(self.ohlcvs)):
                     candle = self.ohlcvs[runner_index]
 
@@ -38,6 +55,7 @@ class Backtester:
                         print(f'[{closing_time}] Take profit')
                         position.rr = self.strategy.rr
                         position.closing_time = closing_time
+                        self.balance += cost + (position.take_profit - position.entry_price) * amount
                         break
 
                     if candle.lowest <= position.stop_loss:
@@ -45,6 +63,7 @@ class Backtester:
                         print(f'[{closing_time}] Stop loss')
                         position.rr = -1
                         position.closing_time = closing_time
+                        self.balance +=  cost + (position.stop_loss - position.entry_price) * amount
                         break
 
                 positions.append(position)
@@ -58,6 +77,15 @@ class Backtester:
             position = self.strategy.short(index)
 
             if position:
+                amount = get_amount(self.balance, position.side, position.entry_price, position.stop_loss, risk=self.args.risk)
+                cost = self.get_cost(position, amount)
+                if cost:
+                    print(f'[{position.opening_time}] --> Cost: {cost}$')
+                else:
+                    continue
+
+                self.balance -= cost
+
                 for runner_index in range(index + 1, len(self.ohlcvs)):
                     candle = self.ohlcvs[runner_index]
 
@@ -66,6 +94,7 @@ class Backtester:
                         print(f'[{closing_time}] Take profit')
                         position.rr = self.strategy.rr
                         position.closing_time = closing_time
+                        self.balance += cost + (position.entry_price - position.take_profit) * amount
                         break
 
                     if candle.highest >= position.stop_loss:
@@ -73,6 +102,7 @@ class Backtester:
                         print(f'[{closing_time}] Stop loss')
                         position.rr = -1
                         position.closing_time = closing_time
+                        self.balance += cost + (position.entry_price - position.stop_loss) * amount
                         break
 
                 positions.append(position)

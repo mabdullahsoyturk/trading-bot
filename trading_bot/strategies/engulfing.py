@@ -44,11 +44,11 @@ class EngulfingStrategy(Strategy):
         first_candle, second_candle, engulf_candle = self.get_three_candles(index)
         open_time = datetime.datetime.fromtimestamp(engulf_candle.timestamp/1000.0)
 
-        print(f'\n[LONG, {open_time}] First Candle Check: {first_candle.close_price < first_candle.open_price}')
-        print(f'[LONG, {open_time}] Second Candle Check: {second_candle.close_price < second_candle.open_price}')
-        print(f'[LONG, {open_time}] Engulf Check: {engulf_candle.close_price > second_candle.open_price}')
-        print(f'[LONG, {open_time}] ATR Check: {engulf_candle.highest - engulf_candle.lowest < self.atr[index] * self.atr_multiplier}')
-        print(f'[LONG, {open_time}] EMA: {self.ema[index]}, Close: {engulf_candle.close_price}')
+        # print(f'\n[LONG, {open_time}] First Candle Check: {first_candle.close_price < first_candle.open_price}')
+        # print(f'[LONG, {open_time}] Second Candle Check: {second_candle.close_price < second_candle.open_price}')
+        # print(f'[LONG, {open_time}] Engulf Check: {engulf_candle.close_price > second_candle.open_price}')
+        # print(f'[LONG, {open_time}] ATR Check: {engulf_candle.highest - engulf_candle.lowest < self.atr[index] * self.atr_multiplier}')
+        # print(f'[LONG, {open_time}] EMA: {self.ema[index] < engulf_candle.close_price}')
 
         if first_candle.close_price < first_candle.open_price and \
                 second_candle.close_price < second_candle.open_price and \
@@ -72,11 +72,11 @@ class EngulfingStrategy(Strategy):
         first_candle, second_candle, engulf_candle = self.get_three_candles(index)
         open_time = datetime.datetime.fromtimestamp(engulf_candle.timestamp/1000.0)
 
-        print(f'\n[SHORT, {open_time}] First Candle Check: {first_candle.close_price > first_candle.open_price}')
-        print(f'[SHORT, {open_time}] Second Candle Check: {second_candle.close_price > second_candle.open_price}')
-        print(f'[SHORT, {open_time}] Engulf Check: {engulf_candle.close_price < second_candle.open_price}')
-        print(f'[SHORT, {open_time}] ATR Check: {engulf_candle.highest - engulf_candle.lowest < self.atr[index] * self.atr_multiplier}')
-        print(f'[SHORT, {open_time}] EMA: {self.ema[index]}, Close: {engulf_candle.close_price}')
+        # print(f'\n[SHORT, {open_time}] First Candle Check: {first_candle.close_price > first_candle.open_price}')
+        # print(f'[SHORT, {open_time}] Second Candle Check: {second_candle.close_price > second_candle.open_price}')
+        # print(f'[SHORT, {open_time}] Engulf Check: {engulf_candle.close_price < second_candle.open_price}')
+        # print(f'[SHORT, {open_time}] ATR Check: {engulf_candle.highest - engulf_candle.lowest < self.atr[index] * self.atr_multiplier}')
+        # print(f'[SHORT, {open_time}] EMA: {self.ema[index] > engulf_candle.close_price}')
 
         if first_candle.close_price > first_candle.open_price and \
                 second_candle.close_price > second_candle.open_price and \

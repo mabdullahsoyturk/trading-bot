@@ -21,12 +21,15 @@ if __name__ == '__main__':
     # Get data
     ohlcv_data = exchange.get_ohlcv_data(args.symbol, args.timeframe, since)
 
+    # Get balance
+    balance = exchange.get_free_balance()
+
     # Initialize strategy
     strategy = EngulfingStrategy(ohlcv_data, args)
 
     # Backtest
     if args.backtest:
-        backtester = Backtester(strategy, args)
+        backtester = Backtester(strategy, args, balance)
         backtester()
         exit()
 
@@ -35,7 +38,10 @@ if __name__ == '__main__':
 
     # If strategy suggests a position, open it. Otherwise, don't do anything.
     if position:
-        exchange.open_position(position)
+        amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=self.args.risk)
+
+        if amount:
+            exchange.open_position(position, amount)
 
         if args.export:
             with open(args.export_path + "/opened_positions.csv", 'a') as export_file:
