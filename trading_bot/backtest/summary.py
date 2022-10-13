@@ -1,3 +1,7 @@
+import collections
+import numpy as np
+import matplotlib.pyplot as plt
+
 from trading_bot.data import Position
 
 class Summary:
@@ -155,4 +159,27 @@ class Summary:
         streak_info = "\n".join([header, long_entry, short_entry])
         print(streak_info)
         
-        
+    def visualize(self):
+        positions = self.long_positions + self.short_positions
+
+        closes = set([position.closing_time for position in positions])
+
+        date_dict = dict.fromkeys(closes, 0)
+        sorted_date_dict = collections.OrderedDict(sorted(date_dict.items()))
+
+        cumsum = 0
+
+        for position in sorted(positions):
+            cumsum += position.rr
+            sorted_date_dict[position.closing_time] = cumsum
+
+        keys = sorted_date_dict.keys()
+        values = sorted_date_dict.values()
+
+        plt.yticks(np.arange(min(values), max(values)+1, 10))
+
+        plt.plot(keys, values)
+        plt.xlabel("Dates")
+        plt.ylabel("RR")
+        plt.title("Cumulative Reward/Risk (RR)")
+        plt.show()

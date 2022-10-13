@@ -44,6 +44,6 @@ if __name__ == '__main__':
             exchange.open_position(position, amount)
 
         if args.export:
-            with open(args.export_path + "/opened_positions.csv", 'a') as export_file:
+            with open(args.export_path + "./opened_positions.csv", 'a') as export_file:
                 csv_writer = csv.writer(export_file, delimiter=',')
                 csv_writer.writerow(position.__repr__())

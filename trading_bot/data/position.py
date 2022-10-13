@@ -14,3 +14,6 @@ class Position:
 
     def __repr__(self):
         return [self.side, self.opening_time, self.entry_price, self.stop_loss, self.take_profit, self.rr, self.closing_time]
+
+    def __lt__(self, other):
+        return other.closing_time > self.closing_time
