@@ -38,6 +38,17 @@ Short example:
 
 ## Backtest Results
 
+TIMEFRAME = 30m
+RR = 2
+EMA = 200
+ATR = 2
+
+You can run the following backtest with: 
+
+```Bash
+python main.py --backtest --days-ago 370 --ema-timeperiod 200 --rr 2 --timeframe 30m atr-multiplier 2
+```
+
 | Side  | Total R | Win Rate | Num Stops | Num Profits | Num Positions |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | 
 | LONG  | 51  | 0.405  | 141  | 96  | 237  |
