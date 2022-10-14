@@ -1,7 +1,7 @@
 import ccxt # type: ignore
 import csv
 
-from trading_bot.utils import get_x_days_ago_in_iso, get_args
+from trading_bot.utils import get_x_days_ago_in_iso, get_args, get_amount
 from trading_bot.strategies import EngulfingStrategy, MacdStrategy
 from trading_bot.exchange import Exchange
 from trading_bot.backtest import Backtester
@@ -38,12 +38,12 @@ if __name__ == '__main__':
 
     # If strategy suggests a position, open it. Otherwise, don't do anything.
     if position:
-        amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=self.args.risk)
+        amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=args.risk)
 
         if amount:
             exchange.open_position(position, amount)
 
         if args.export:
-            with open(args.export_path + "./opened_positions.csv", 'a') as export_file:
+            with open(args.export_path + "/opened_positions.csv", 'a') as export_file:
                 csv_writer = csv.writer(export_file, delimiter=',')
                 csv_writer.writerow(position.__repr__())
