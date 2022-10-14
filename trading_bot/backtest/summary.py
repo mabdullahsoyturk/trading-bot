@@ -162,7 +162,7 @@ class Summary:
     def visualize(self):
         positions = self.long_positions + self.short_positions
 
-        closes = set([position.closing_time for position in positions])
+        closes = set([position.closing_time for position in positions if position.closing_time != None])
 
         date_dict = dict.fromkeys(closes, 0)
         sorted_date_dict = collections.OrderedDict(sorted(date_dict.items()))

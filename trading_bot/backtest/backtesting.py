@@ -17,7 +17,7 @@ class Backtester:
         
         summary = Summary(self.strategy.rr, long_positions, short_positions)
         summary.print()
-        summary.visualize()
+        #summary.visualize()
 
         if self.args.backtest_export:
             with open(self.args.export_path + "/backtest_positions.csv", 'w') as export_file:

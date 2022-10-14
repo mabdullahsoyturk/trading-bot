@@ -1,4 +1,49 @@
-# A trading bot for 2 to 1 engulfing
+# A trading bot that I've used for a while
+
+This repository contains a trading bot that I used in Binance for a while. It's for educational purposes. Even though, the strategy seems profitable, I don't recommend you to use it. 
+
+## Strategy
+
+### Long Strategy
+
+Requirements:
+* Price is above 200 EMA
+* Two red candles, followed by an engulfing green candle.
+* The price move of engulfing candle is no more than 2 times ATR.
+
+Position info:
+* Entry price: Closing of engulfing candle.
+* Stop price:  Lowest price of either engulfing or lowest price of the candle before engulfing candle (whichever is lower).
+* Take profit price: Entry Price + rr * (Entry Price - Stop Price)
+
+Long example:
+
+![Long](./figures/long_example.png)
+
+### Short Strategy
+
+Requirements:
+* Price is below 200 EMA
+* Two green candles, followed by an engulfing red candle.
+* The price move of engulfing candle is no more than 2 times ATR.
+
+Position info:
+* Entry price: Closing of engulfing candle.
+* Stop price:  Highest price of either engulfing or highest price of the candle before engulfing candle (whichever is higher).
+* Take profit price: Entry Price + rr * (Stop Price - Entry Price)
+
+Short example:
+
+![Short](./figures/short_example.png)
+
+## Backtest Results
+
+| Side  | Total R | Win Rate | Num Stops | Num Profits | Num Positions |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | 
+| LONG  | 51  | 0.405  | 141  | 96  | 237  |
+| SHORT  | 95  | 0.395  | 309  | 202  | 512  |
+
+![Return](./figures/return.png)
 
 ## Install Dependencies
 
@@ -25,7 +70,3 @@ crontab -e
 ```
 
 <repo_path> is the path where you cloned the repository.
-
-## Backtest Results
-
-![Return](./figures/return.png)
