@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # Get data
     ohlcv_data = exchange.get_ohlcv_data(args.symbol, args.timeframe, since)
 
-    # Get balance
+    # Get account balance
     balance = exchange.get_free_balance()
 
     # Initialize strategy
@@ -36,13 +36,16 @@ if __name__ == '__main__':
     # Run strategy
     position = strategy.execute()
 
-    # If strategy suggests a position, open it. Otherwise, don't do anything.
+    # If strategy suggests a position, open it.
     if position:
+        # Get the amount of security that you need to long or short according to your risk
+        # Returns None if balance is not enough or amount is lower than minimum position amount
         amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=args.risk)
 
         if amount:
             exchange.open_position(position, amount)
 
+        # Append the opened position to the output csv file
         if args.export:
             with open(args.export_path + "/opened_positions.csv", 'a') as export_file:
                 csv_writer = csv.writer(export_file, delimiter=',')

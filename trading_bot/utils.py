@@ -48,8 +48,3 @@ def get_x_days_ago_in_iso(x:float=5.0) -> str:
     today = datetime.datetime.now()
     delta = datetime.timedelta(days=x)
     return (today - delta).isoformat()
-
-if __name__ == '__main__':
-    #print(get_amount(80, 'buy', 20000, 19500))
-    print(get_amount(175, 'sell', 19702.4, 19742.5))
-    #print(get_x_days_ago_in_iso(2))
