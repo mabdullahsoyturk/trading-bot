@@ -54,6 +54,11 @@ python main.py --backtest --days-ago 370 --ema-timeperiod 200 --rr 2 --timeframe
 | LONG  | 51  | 0.405  | 141  | 96  | 237  |
 | SHORT  | 95  | 0.395  | 309  | 202  | 512  |
 
+| Side | Longest Winning Streak | Longest Losing Streak |
+| ------------- | ------------- | ------------- |
+| LONG |            10          |            8          |
+| SHORT |           14          |            17         |
+
 ![Return](./figures/return.png)
 
 ## Install Dependencies

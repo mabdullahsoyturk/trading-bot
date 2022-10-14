@@ -6,7 +6,7 @@ def get_args():
     
     parser.add_argument('--symbol', type=str, help='Ticker symbol', default='BTC/USDT')
     parser.add_argument('--timeframe', type=str, help='Timeframe', default='30m')
-    parser.add_argument('--ema-timeperiod', type=int, help='Timeperiod for EMA', default=200)
+    parser.add_argument('--ema-timeperiod', type=int, help='Timeperiod for EMA', default=600)
     parser.add_argument('--atr-multiplier', type=float, help='ATR multiplier', default=2)
     parser.add_argument('--risk', type=float, help="Risk in dollars for 1R", default=1.0)
     parser.add_argument('--rr', type=float, help="Reward/Risk ratio", default=2)
