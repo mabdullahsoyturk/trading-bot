@@ -1,6 +1,6 @@
 import collections
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt # type: ignore
 
 from trading_bot.data import Position
 

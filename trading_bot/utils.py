@@ -1,5 +1,6 @@
 import datetime
 import argparse
+from typing import Union
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -21,7 +22,7 @@ def get_args():
 
     return parser.parse_args()
 
-def get_amount(budget:float, side:str, price:float, stop_loss:float, risk:float=1.0) -> float:
+def get_amount(budget:float, side:str, price:float, stop_loss:float, risk:float=1.0) -> Union[float, None]:
     amount = 0.0
     
     try:

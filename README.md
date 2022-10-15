@@ -1,6 +1,25 @@
 # A trading bot that I've used for a while
 
-This repository contains a trading bot that I used in Binance for a while. It's for educational purposes. Even though, the strategy seems profitable, I don't recommend you to use it. 
+This repository contains a trading bot that I used in Binance for a while. It's for educational purposes. Even though, the strategy seems profitable, I don't advise or recommend you to use it. Get a professional help for that. 
+
+## Project Structure
+
+```bash
+trading-bot/
+    backtest/                 # Backtesting package
+        backtesting.py
+        summary.py
+    data/                     # Dataclasses
+        ohlcv.py              # (O)pen, (H)ighest, (L)owest, (C)lose, (V)olume
+        order.py              # Contains order info
+        position.py           # Contains position info
+    strategies/               # Contains different strategies
+        engulfing.py          # Main engulfing strategy that I use
+        macd.py               # An macd based strategy
+        strategy.py           # Abstract strategy class
+main.py                       # Main file to execute the bot
+run.sh                        # Script for crontab
+```
 
 ## Strategy
 
