@@ -10,6 +10,7 @@ class Backtester:
         self.ohlcvs = strategy.ohlcvs
         self.args = args
         self.balance = balance
+        self.balance = 1000
 
     def __call__(self):
         long_positions = self.backtest_long()
@@ -17,7 +18,7 @@ class Backtester:
         
         summary = Summary(self.strategy.rr, long_positions, short_positions)
         summary.print()
-        #summary.visualize()
+        summary.visualize()
 
         if self.args.backtest_export:
             with open(self.args.export_path + "/backtest_positions.csv", 'w') as export_file:
@@ -39,7 +40,7 @@ class Backtester:
             position = self.strategy.long(index)
 
             if position:
-                amount = get_amount(self.balance, position.side, position.entry_price, position.stop_loss, risk=self.args.risk)
+                amount, leverage = get_amount(self.balance, position.side, position.entry_price, position.stop_loss, risk=self.args.risk)
                 cost = self.get_cost(position, amount)
                 if cost:
                     print(f'[{position.opening_time}] --> Cost: {cost}$')
@@ -78,7 +79,7 @@ class Backtester:
             position = self.strategy.short(index)
 
             if position:
-                amount = get_amount(self.balance, position.side, position.entry_price, position.stop_loss, risk=self.args.risk)
+                amount, leverage = get_amount(self.balance, position.side, position.entry_price, position.stop_loss, risk=self.args.risk)
                 cost = self.get_cost(position, amount)
                 if cost:
                     print(f'[{position.opening_time}] --> Cost: {cost}$')

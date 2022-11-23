@@ -8,7 +8,6 @@ load_dotenv()
 import ccxt # type: ignore
 from ccxt.binance import binance # type: ignore
 
-from trading_bot.utils import get_amount
 from trading_bot.data import Order, Position
 
 class Exchange:

@@ -40,9 +40,10 @@ if __name__ == '__main__':
     if position:
         # Get the amount of security that you need to long or short according to your risk
         # Returns None if balance is not enough or amount is lower than minimum position amount
-        amount = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=args.risk)
+        amount, leverage = get_amount(balance, position.side, position.entry_price, position.stop_loss, risk=args.risk)
 
         if amount:
+            exchange.set_leverage(leverage)
             exchange.open_position(position, amount)
 
         # Append the opened position to the output csv file
