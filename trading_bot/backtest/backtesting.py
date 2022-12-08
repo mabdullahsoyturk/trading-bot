@@ -20,6 +20,8 @@ class Backtester:
         summary.print()
         summary.visualize()
 
+        print(f'Final balance: {self.balance}')
+
         if self.args.backtest_export:
             with open(self.args.export_path + "/backtest_positions.csv", 'w') as export_file:
                 csv_writer = csv.writer(export_file, delimiter=',')
@@ -65,10 +67,13 @@ class Backtester:
                         print(f'[{closing_time}] Stop loss')
                         position.rr = -1
                         position.closing_time = closing_time
-                        self.balance +=  cost + (position.stop_loss - position.entry_price) * amount
+                        self.balance +=  cost - (position.entry_price - position.stop_loss) * amount
                         break
-
-                positions.append(position)
+                
+                if position.closing_time:
+                    positions.append(position)
+                else:
+                    self.balance += cost
 
         return positions
 
@@ -104,7 +109,7 @@ class Backtester:
                         print(f'[{closing_time}] Stop loss')
                         position.rr = -1
                         position.closing_time = closing_time
-                        self.balance += cost + (position.entry_price - position.stop_loss) * amount
+                        self.balance += cost - (position.stop_loss - position.entry_price) * amount
                         break
 
                 positions.append(position)

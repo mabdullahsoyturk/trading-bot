@@ -34,6 +34,7 @@ def get_amount(budget:float, side:str, price:float, stop_loss:float, risk:float=
         else:
             print("Unknown side. Should be buy or sell")
         
+        print(f'Price: {price}, Stop Loss: {stop_loss}, Amount: {amount}')
         cost = amount * price
 
         if cost > budget:
