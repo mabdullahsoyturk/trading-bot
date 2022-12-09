@@ -180,6 +180,9 @@ class Summary:
 
         plt.plot(keys, values)
         plt.xlabel("Dates")
+        plt.xticks(rotation=90)
         plt.ylabel("RR")
         plt.title("Cumulative Reward/Risk (RR)")
+        mng = plt.get_current_fig_manager()
+        mng.full_screen_toggle()
         plt.show()
