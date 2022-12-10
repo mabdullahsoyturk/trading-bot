@@ -18,7 +18,7 @@ class Backtester:
         
         summary = Summary(self.strategy.rr, long_positions, short_positions)
         summary.print()
-        summary.visualize()
+        #summary.visualize()
 
         print(f'Final balance: {self.balance}')
 
@@ -111,7 +111,10 @@ class Backtester:
                         position.closing_time = closing_time
                         self.balance += cost - (position.stop_loss - position.entry_price) * amount
                         break
-
-                positions.append(position)
+                
+                if position.closing_time:
+                    positions.append(position)
+                else:
+                    self.balance += cost
 
         return positions

@@ -61,7 +61,7 @@ class EngulfingStrategy(Strategy):
             stop_loss = whichever_is_lowest
             take_profit = entry_price + (entry_price - stop_loss) * self.rr
 
-            print(f'\n[LONG][{open_time}] Opened at: {entry_price}, Stop Loss: {stop_loss}, Take Profit: {take_profit}, EMA: {self.ema[index]} ATR: {self.atr[index]}')
+            print(f'\n[LONG][{open_time}] Opened at: {entry_price:.2f}, Stop Loss: {stop_loss:.2f}, Take Profit: {take_profit:.2f}, EMA: {self.ema[index]:.2f} ATR: {self.atr[index]:.2f}')
             position = Position("buy", open_time, entry_price, stop_loss, take_profit)
             
             return position
@@ -89,7 +89,7 @@ class EngulfingStrategy(Strategy):
             stop_loss = whichever_is_highest
             take_profit = entry_price - (stop_loss - entry_price) * self.rr
 
-            print(f'\n[SHORT][{open_time}] Opened at: {entry_price}, Stop Loss: {stop_loss}, Take Profit: {take_profit}, EMA: {self.ema[index]} ATR: {self.atr[index]}')
+            print(f'\n[SHORT][{open_time}] Opened at: {entry_price:.2f}, Stop Loss: {stop_loss:.2f}, Take Profit: {take_profit:.2f}, EMA: {self.ema[index]:.2f} ATR: {self.atr[index]:.2f}')
 
             position = Position("sell", open_time, entry_price, stop_loss, take_profit)
 

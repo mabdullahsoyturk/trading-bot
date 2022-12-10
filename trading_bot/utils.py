@@ -34,13 +34,13 @@ def get_amount(budget:float, side:str, price:float, stop_loss:float, risk:float=
         else:
             print("Unknown side. Should be buy or sell")
         
-        print(f'Price: {price}, Stop Loss: {stop_loss}, Amount: {amount}')
+        print(f'Price: {price:.2f}, Stop Loss: {stop_loss:.2f}, Amount: {amount}')
         cost = amount * price
 
         if cost > budget:
             leverage = int(cost // budget) + 1 
 
-        print(f'Budget: {budget}, Amount: {amount}, Cost: {cost}, Leverage: {leverage}')
+        print(f'Budget: {budget:.2f}, Amount: {amount}, Cost: {cost:.2f}, Leverage: {leverage}')
 
         if amount < 0.001:
             raise Exception("Smaller than minimum amount 0.001")
