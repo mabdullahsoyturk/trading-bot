@@ -116,6 +116,30 @@ class Summary:
 
         return longest_win_streak, longest_lose_streak
 
+    def get_day_stats(self, positions: list[Position]) -> tuple[int, float, int]:
+        """Calculates best day, mean and worst day
+
+        Args:
+            positions (list[Position]): List of Position objects
+
+        Returns:
+            tuple[int, float, int]: (best_day, mean, worst_day)
+        """
+        closes = set([position.closing_time.date() for position in positions])
+
+        # Sort by date
+        date_dict = dict.fromkeys(closes, 0)
+        sorted_date_dict = collections.OrderedDict(sorted(date_dict.items()))
+
+        for position in sorted(positions):
+            sorted_date_dict[position.closing_time.date()] += position.rr
+        
+        best_day = max(sorted_date_dict, key=sorted_date_dict.get)
+        mean = sum(sorted_date_dict.values()) / len(sorted_date_dict.values())
+        worst_day = min(sorted_date_dict, key=sorted_date_dict.get)
+        
+        return best_day, sorted_date_dict[best_day], mean, worst_day, sorted_date_dict[worst_day]
+
     def print(self) -> None:
         # R history
         long_r_history = self.get_r_history(self.long_positions)
@@ -158,11 +182,22 @@ class Summary:
 
         streak_info = "\n".join([header, long_entry, short_entry])
         print(streak_info)
-        
+
+        # Statistics
+        long_best_day, long_best_day_rr, long_mean, long_worst_day, long_worst_day_rr = self.get_day_stats(self.long_positions)
+        short_best_day, short_best_day_rr, short_mean, short_worst_day, short_worst_day_rr = self.get_day_stats(self.short_positions)
+
+        header = "\n{}\t {}\t {}\t {}\t {}\t {}".format('Side', 'Best Day' ,'RR', 'Mean', 'Worst Day', 'RR')
+        long_entry = "{}\t {}\t {}\t {:.1f}\t {}\t {}".format("LONG", long_best_day, long_best_day_rr, long_mean, long_worst_day, long_worst_day_rr)
+        short_entry = "{}\t {}\t {}\t {:.1f}\t {}\t {}".format("SHORT", short_best_day, short_best_day_rr, short_mean, short_worst_day, short_worst_day_rr)
+
+        stat_info = "\n".join([header, long_entry, short_entry])
+        print(stat_info)
+
     def visualize(self):
         positions = self.long_positions + self.short_positions
 
-        closes = set([position.closing_time for position in positions if position.closing_time != None])
+        closes = set([position.closing_time.date() for position in positions if position.closing_time != None])
 
         date_dict = dict.fromkeys(closes, 0)
         sorted_date_dict = collections.OrderedDict(sorted(date_dict.items()))
@@ -171,7 +206,7 @@ class Summary:
 
         for position in sorted(positions):
             cumsum += position.rr
-            sorted_date_dict[position.closing_time] = cumsum
+            sorted_date_dict[position.closing_time.date()] = cumsum
 
         keys = sorted_date_dict.keys()
         values = sorted_date_dict.values()

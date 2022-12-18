@@ -18,7 +18,8 @@ class Backtester:
         
         summary = Summary(self.strategy.rr, long_positions, short_positions)
         summary.print()
-        #summary.visualize()
+        if self.args.visualize:
+            summary.visualize()
 
         print(f'Final balance: {self.balance}')
 

@@ -17,7 +17,6 @@ class Exchange:
         self.args = args
         self.exchange = self.init_exchange()
         self.exchange.load_markets()
-        #self.set_leverage(args.leverage)
 
     def init_exchange(self) -> binance:
         """Initializes the exchange (Binance only for now)
